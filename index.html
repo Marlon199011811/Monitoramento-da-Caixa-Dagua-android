@@ -1,975 +1,1111 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1120" id="metaThemeColor">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Caixa D'água</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Playfair+Display:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caixa D'água — Monitor</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet" />
+
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ══════════════════════════════════════════════════
-     DARK THEME — Submarine Control Room
-  ══════════════════════════════════════════════════ */
-  :root,
-  [data-theme="dark"] {
-    --bg-base:    #0b1120;
-    --bg-surf:    #111827;
-    --bg-raise:   #1a2438;
-    --bg-over:    #1f2d47;
-    --b-dim:      rgba(99,155,255,0.09);
-    --b-med:      rgba(99,155,255,0.18);
-    --b-bright:   rgba(0,220,255,0.38);
-    --t1: #e8f0ff;
-    --t2: #8fa8d0;
-    --t3: #4a6080;
-    --t-inv: #0b1120;
-    --acc:      #00dcff;
-    --acc-d:    rgba(0,220,255,0.11);
-    --acc-g:    rgba(0,220,255,0.28);
-    --ok:       #00e5a0;
-    --ok-d:     rgba(0,229,160,0.11);
-    --warn:     #ffb020;
-    --warn-d:   rgba(255,176,32,0.11);
-    --crit:     #ff3d5a;
-    --crit-d:   rgba(255,61,90,0.11);
-    --w-top:    rgba(0,230,255,0.88);
-    --w-bot:    rgba(0,100,220,1);
-    --w-shine:  rgba(255,255,255,0.16);
-    --ch-line:  #00dcff;
-    --ch-f0:    rgba(0,220,255,0.26);
-    --ch-f1:    rgba(0,220,255,0.00);
-    --f-display: 'Rajdhani', sans-serif;
-    --f-data:    'Share Tech Mono', monospace;
-    --sh-card:   0 4px 20px rgba(0,0,0,0.45);
-    --sh-glow:   0 0 18px rgba(0,220,255,0.26);
-    --r1:8px; --r2:14px; --r3:20px; --r4:26px;
-    --tr: 0.22s cubic-bezier(.4,0,.2,1);
-    --st: env(safe-area-inset-top,0px);
-    --sb: env(safe-area-inset-bottom,0px);
-  }
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --card:     #1c2333;
+      --border:   #30363d;
+      --text:     #e6edf3;
+      --muted:    #7d8590;
+      --accent:   #2f81f7;
+      --accent2:  #56d364;
+      --danger:   #f85149;
+      --warn:     #e3b341;
+      --info-bg:  rgba(47,129,247,.12);
+      --font-display: 'DM Serif Display', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'DM Mono', monospace;
+      --radius:   12px;
+      --radius-sm: 8px;
+    }
 
-  /* ══════════════════════════════════════════════════
-     LIGHT THEME — Swiss Precision Instrument
-  ══════════════════════════════════════════════════ */
-  [data-theme="light"] {
-    --bg-base:   #f4f0e8;
-    --bg-surf:   #faf7f2;
-    --bg-raise:  #ffffff;
-    --bg-over:   #ede8de;
-    --b-dim:     rgba(100,70,20,0.09);
-    --b-med:     rgba(100,70,20,0.17);
-    --b-bright:  rgba(176,96,16,0.42);
-    --t1: #1a1208;
-    --t2: #5a4020;
-    --t3: #9a7850;
-    --t-inv: #faf7f2;
-    --acc:     #b06010;
-    --acc-d:   rgba(176,96,16,0.09);
-    --acc-g:   rgba(176,96,16,0.20);
-    --ok:      #1e7a48;
-    --ok-d:    rgba(30,122,72,0.09);
-    --warn:    #c07000;
-    --warn-d:  rgba(192,112,0,0.09);
-    --crit:    #c01828;
-    --crit-d:  rgba(192,24,40,0.09);
-    --w-top:   rgba(30,130,220,0.88);
-    --w-bot:   rgba(8,60,160,1);
-    --w-shine: rgba(255,255,255,0.28);
-    --ch-line: #b06010;
-    --ch-f0:   rgba(176,96,16,0.20);
-    --ch-f1:   rgba(176,96,16,0.00);
-    --f-display: 'Playfair Display', serif;
-    --f-data:    'Courier Prime', monospace;
-    --sh-card:   0 2px 14px rgba(80,40,0,0.09);
-    --sh-glow:   0 0 10px rgba(176,96,16,0.18);
-  }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
 
-  /* ══════════════════════════════════════════════════
-     BASE
-  ══════════════════════════════════════════════════ */
-  *,*::before,*::after { margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100% }
-  html { height:100%;overflow:hidden }
-  body {
-    font-family: var(--f-display);
-    background: var(--bg-base); color: var(--t1);
-    height:100%;overflow:hidden;
-    overscroll-behavior:none;
-    transition: background var(--tr), color var(--tr);
-  }
+    /* ===== HEADER ===== */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.01em;
+    }
+    header h1 span { color: var(--accent); }
 
-  /* ══════════════════════════════════════════════════
-     APP SHELL
-  ══════════════════════════════════════════════════ */
-  #app { display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;position:relative }
+    #status-dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    #status-dot.online { background: var(--accent2); }
+    #status-dot.offline { background: var(--danger); animation: none; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+    #last-update {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
 
-  .screen {
-    position:absolute;inset:0;display:flex;flex-direction:column;
-    opacity:0;pointer-events:none;
-    transition:opacity .32s ease,transform .32s ease;
-    transform:translateY(12px);
-  }
-  .screen.active { opacity:1;pointer-events:all;transform:translateY(0) }
+    /* ===== MAIN ===== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
 
-  /* ══════════════════════════════════════════════════
-     SPLASH
-  ══════════════════════════════════════════════════ */
-  #splash {
-    align-items:center;justify-content:center;
-    background:var(--bg-base);gap:24px;
-  }
-  #splash.active { z-index:200 }
+    /* ===== CONFIG BANNER ===== */
+    #config-banner {
+      background: rgba(227,179,65,.1);
+      border: 1px solid var(--warn);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      display: none;
+    }
+    #config-banner.show { display: block; }
+    #config-banner code {
+      font-family: var(--font-mono);
+      background: rgba(255,255,255,.07);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+    }
 
-  .sp-gauge { width:116px;height:116px;position:relative;flex-shrink:0 }
-  .sp-svg   { width:100%;height:100% }
-  .sp-track { fill:none;stroke:var(--b-med);stroke-width:3;stroke-linecap:round }
-  .sp-arc   {
-    fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;
-    stroke-dasharray:283;stroke-dashoffset:283;
-    transform-origin:50% 50%;transform:rotate(-90deg);
-    filter:drop-shadow(0 0 6px var(--acc));
-    transition:stroke-dashoffset .07s linear;
-  }
-  .sp-ico { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.6rem }
-  .sp-title { font-size:1.65rem;font-weight:700;letter-spacing:-.5px;color:var(--t1) }
-  .sp-sub {
-    font-family:var(--f-data);font-size:.68rem;
-    color:var(--acc);letter-spacing:3px;text-transform:uppercase;
-  }
+    /* ===== CARDS GRID ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .metric-card.danger::before  { background: var(--danger); }
+    .metric-card.warn::before    { background: var(--warn); }
+    .metric-card.success::before { background: var(--accent2); }
+    .metric-card .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .metric-card .value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .metric-card .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
 
-  /* ══════════════════════════════════════════════════
-     LOGIN
-  ══════════════════════════════════════════════════ */
-  #login {
-    align-items:center;justify-content:center;
-    padding:calc(var(--st) + 18px) 20px calc(var(--sb) + 18px);
-    background:var(--bg-base);
-  }
+    /* ===== TANK VISUAL ===== */
+    .tank-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 640px) {
+      .tank-row { grid-template-columns: 1fr; }
+    }
+    .tank-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .tank-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      align-self: flex-start;
+    }
+    .tank-svg-wrap {
+      position: relative;
+      width: 100px;
+      height: 180px;
+    }
+    #tank-svg { width: 100%; height: 100%; }
+    .tank-pct-label {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--text);
+    }
 
-  .ln-card {
-    width:100%;max-width:355px;
-    background:var(--bg-surf);border:1px solid var(--b-med);
-    border-radius:var(--r4);padding:34px 24px;
-    box-shadow:var(--sh-card);position:relative;overflow:hidden;
-  }
-  /* Corner glow ornaments */
-  .ln-card::before,.ln-card::after {
-    content:'';position:absolute;pointer-events:none;
-    border-radius:50%;
-    background:radial-gradient(circle, var(--acc-g) 0%, transparent 65%);
-  }
-  .ln-card::before { width:100px;height:100px;top:-30px;right:-20px }
-  .ln-card::after  { width:70px;height:70px;bottom:-20px;left:-15px }
+    /* ===== LEDS ===== */
+    .leds {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .led-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+    .led {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      transition: all .3s;
+      flex-shrink: 0;
+    }
+    .led.on-blue   { background: #2f81f7; box-shadow: 0 0 6px #2f81f7; }
+    .led.on-green  { background: #56d364; box-shadow: 0 0 6px #56d364; }
+    .led.on-yellow { background: #e3b341; box-shadow: 0 0 6px #e3b341; }
+    .led.on-red    { background: #f85149; box-shadow: 0 0 6px #f85149; }
+    .led.blink     { animation: blink-led 0.5s infinite alternate; }
+    @keyframes blink-led { from { opacity: 1; } to { opacity: 0.1; } }
 
-  .ln-top { display:flex;flex-direction:column;align-items:center;margin-bottom:26px;position:relative;z-index:1 }
-  .ln-emblem {
-    width:66px;height:66px;margin-bottom:14px;
-    background:var(--bg-raise);border:1.5px solid var(--b-bright);
-    border-radius:var(--r3);display:flex;align-items:center;justify-content:center;
-    font-size:30px;box-shadow:var(--sh-glow);
-  }
-  [data-theme="dark"] .ln-emblem { box-shadow:0 0 0 1px var(--b-bright),0 0 26px var(--acc-g) }
-  .ln-title { font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px;letter-spacing:-.3px }
-  .ln-sub   { font-family:var(--f-data);font-size:.65rem;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase }
+    /* Pisca o valor do nível no display (igual ao LCD a 0% e 25%) */
+    .blink-text { animation: blink-text 0.5s infinite alternate; }
+    @keyframes blink-text { from { opacity: 1; } to { opacity: 0.05; } }
 
-  .fld { margin-bottom:14px;position:relative;z-index:1 }
-  .fld-lbl {
-    display:block;font-family:var(--f-data);font-size:.62rem;
-    font-weight:700;color:var(--t3);margin-bottom:5px;
-    text-transform:uppercase;letter-spacing:1.2px;
-  }
-  .fld-inp {
-    width:100%;padding:12px 13px;
-    background:var(--bg-raise);border:1px solid var(--b-med);
-    border-radius:var(--r1);font-size:1rem;color:var(--t1);
-    font-family:var(--f-display);
-    transition:border-color var(--tr),box-shadow var(--tr);
-    outline:none;-webkit-appearance:none;
-  }
-  .fld-inp:focus { border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-d) }
-  .fld-inp::placeholder { color:var(--t3) }
+    /* Badge do buzzer */
+    .buzzer-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(248,81,73,.12);
+      border: 1px solid rgba(248,81,73,.4);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      color: #f85149;
+      font-family: var(--font-mono);
+      animation: blink-led 0.3s infinite alternate;
+    }
+    .buzzer-badge.ativo { display: flex; }
 
-  .btn-login {
-    width:100%;padding:13px;
-    background:var(--acc);border:none;border-radius:var(--r1);
-    font-size:1rem;font-weight:700;color:var(--t-inv);
-    font-family:var(--f-display);cursor:pointer;margin-top:6px;
-    letter-spacing:.5px;position:relative;z-index:1;
-    transition:opacity var(--tr),transform var(--tr);
-  }
-  .btn-login:active { transform:scale(.97);opacity:.9 }
-  .btn-login:disabled { opacity:.45;pointer-events:none }
+    /* ===== PANEL CHARTS ===== */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .panel-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .panel-badge {
+      font-size: 0.7rem;
+      background: var(--info-bg);
+      color: var(--accent);
+      border: 1px solid rgba(47,129,247,.3);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+    }
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 240px;
+    }
 
-  .ln-err {
-    background:var(--crit-d);border:1px solid var(--crit);
-    border-radius:var(--r1);padding:10px 12px;
-    font-size:.82rem;color:var(--crit);
-    margin-bottom:13px;display:none;align-items:center;gap:7px;
-    position:relative;z-index:1;
-  }
-  .ln-err.show { display:flex;animation:shake .34s ease }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+    /* ===== TIMER BARS ===== */
+    .timer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 500px) { .timer-grid { grid-template-columns: 1fr; } }
+    .timer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+    .timer-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .timer-value { font-family: var(--font-mono); font-size: 1.1rem; }
+    .timer-bar-wrap {
+      margin-top: 10px;
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
 
-  /* ══════════════════════════════════════════════════
-     DASHBOARD
-  ══════════════════════════════════════════════════ */
-  #dashboard { overflow:hidden;background:var(--bg-base) }
+    /* ===== HISTORY TABLE ===== */
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .history-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(48,54,61,.5);
+      font-family: var(--font-mono);
+      font-size: 0.79rem;
+    }
+    .history-table tr:hover td { background: rgba(255,255,255,.03); }
+    .pill {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-family: var(--font-body);
+      font-weight: 500;
+    }
+    .pill-0   { background: rgba(248,81,73,.15); color: #f85149; }
+    .pill-25  { background: rgba(227,179,65,.15); color: #e3b341; }
+    .pill-50  { background: rgba(47,129,247,.15); color: #2f81f7; }
+    .pill-75  { background: rgba(86,211,100,.15); color: #56d364; }
+    .pill-100 { background: rgba(86,211,100,.25); color: #56d364; }
 
-  .status-spc { height:var(--st);flex-shrink:0;background:var(--bg-surf) }
+    /* ===== RELAY BADGE ===== */
+    .relay-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+    .relay-on  { background: rgba(248,81,73,.15); color: #f85149; }
+    .relay-off { background: rgba(125,133,144,.15); color: #7d8590; }
 
-  /* Topbar */
-  .tbar {
-    background:var(--bg-surf);border-bottom:1px solid var(--b-dim);
-    padding:10px 14px;
-    display:flex;align-items:center;justify-content:space-between;
-    flex-shrink:0;position:relative;
-  }
-  .tbar::after {
-    content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-    background:linear-gradient(90deg,transparent,var(--acc-g),transparent);
-  }
-  .tbar-brand { display:flex;align-items:center;gap:10px }
-  .brand-mk {
-    width:31px;height:31px;background:var(--bg-raise);
-    border:1px solid var(--b-bright);border-radius:9px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:15px;box-shadow:var(--sh-glow);flex-shrink:0;
-  }
-  .brand-name { font-size:.93rem;font-weight:700;color:var(--t1);line-height:1.1 }
-  .brand-meta { font-family:var(--f-data);font-size:.58rem;color:var(--t3);letter-spacing:.7px }
-
-  .tbar-right { display:flex;align-items:center;gap:7px }
-
-  .live-pill {
-    display:flex;align-items:center;gap:4px;
-    padding:4px 9px;border-radius:20px;border:1px solid;
-  }
-  .live-pill.on  { background:var(--ok-d);border-color:rgba(0,229,160,.28);color:var(--ok) }
-  .live-pill.off { background:var(--crit-d);border-color:rgba(255,61,90,.28);color:var(--crit) }
-  .live-dot { width:5px;height:5px;border-radius:50%;animation:blink 2s ease-in-out infinite }
-  .live-pill.on  .live-dot { background:var(--ok);box-shadow:0 0 5px var(--ok) }
-  .live-pill.off .live-dot { background:var(--crit);animation:none }
-  .live-txt { font-family:var(--f-data);font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase }
-  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
-
-  .ico-btn {
-    width:31px;height:31px;background:var(--bg-raise);
-    border:1px solid var(--b-med);border-radius:9px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;font-size:14px;
-    transition:background var(--tr),transform var(--tr);flex-shrink:0;
-  }
-  .ico-btn:active { transform:scale(.9);background:var(--bg-over) }
-  .ico-btn.theme { background:var(--acc-d);border-color:var(--b-bright) }
-
-  /* Scroll area */
-  .scroll {
-    flex:1;overflow-y:auto;overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior-y:contain;
-    padding:13px 13px calc(var(--sb) + 74px);
-    display:flex;flex-direction:column;gap:11px;
-  }
-  .scroll::-webkit-scrollbar { width:2px }
-  .scroll::-webkit-scrollbar-thumb { background:var(--b-med);border-radius:2px }
-
-  /* Stagger animation */
-  .fi { opacity:0;transform:translateY(13px);animation:fu .36s ease forwards }
-  .fi:nth-child(1){animation-delay:.03s}.fi:nth-child(2){animation-delay:.08s}
-  .fi:nth-child(3){animation-delay:.13s}.fi:nth-child(4){animation-delay:.18s}
-  .fi:nth-child(5){animation-delay:.22s}.fi:nth-child(6){animation-delay:.26s}
-  .fi:nth-child(7){animation-delay:.30s}
-  @keyframes fu { to { opacity:1;transform:translateY(0) } }
-
-  /* ── Alert banner ── */
-  .alert {
-    border-radius:var(--r2);padding:12px 13px;
-    display:flex;align-items:flex-start;gap:10px;
-    border:1px solid;position:relative;overflow:hidden;
-  }
-  .alert::before { content:'';position:absolute;left:0;top:0;bottom:0;width:3px }
-  .alert.ok   { background:var(--ok-d);border-color:rgba(0,229,160,.22) }
-  .alert.warn { background:var(--warn-d);border-color:rgba(255,176,32,.22) }
-  .alert.crit { background:var(--crit-d);border-color:rgba(255,61,90,.22);animation:cb 2s ease-in-out infinite }
-  .alert.ok::before   { background:var(--ok) }
-  .alert.warn::before { background:var(--warn) }
-  .alert.crit::before { background:var(--crit) }
-  @keyframes cb { 0%,100%{border-color:rgba(255,61,90,.22)}50%{border-color:rgba(255,61,90,.6)} }
-  .alert-ico   { font-size:1.1rem;flex-shrink:0;margin-top:1px }
-  .alert-title { font-size:.83rem;font-weight:700;margin-bottom:2px }
-  .alert.ok   .alert-title { color:var(--ok) }
-  .alert.warn .alert-title { color:var(--warn) }
-  .alert.crit .alert-title { color:var(--crit) }
-  .alert-body { font-family:var(--f-data);font-size:.7rem;color:var(--t2) }
-
-  /* ── Level card ── */
-  .lv-card {
-    background:var(--bg-surf);border:1px solid var(--b-med);
-    border-radius:var(--r4);padding:19px 17px;
-    display:flex;gap:16px;align-items:stretch;
-    box-shadow:var(--sh-card);position:relative;overflow:hidden;
-  }
-  .lv-card::after {
-    content:'';position:absolute;top:-36px;right:-26px;
-    width:130px;height:130px;
-    background:radial-gradient(circle,var(--acc-g) 0%,transparent 65%);
-    pointer-events:none;
-  }
-
-  /* Tank */
-  .tank-col { display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0 }
-  .tank-body {
-    width:54px;height:114px;
-    border:2px solid var(--b-bright);
-    border-radius:4px 4px 10px 10px;
-    background:var(--bg-base);position:relative;overflow:hidden;
-    box-shadow:var(--sh-glow),inset 0 0 10px rgba(0,0,0,.28);
-  }
-  .tank-lid {
-    position:absolute;top:-5px;left:50%;transform:translateX(-50%);
-    width:64px;height:6px;
-    background:linear-gradient(90deg,var(--acc),var(--ok));
-    border-radius:3px;box-shadow:0 0 7px var(--acc-g);
-  }
-  /* Graduation marks */
-  .tank-body::before {
-    content:'';position:absolute;right:3px;top:0;bottom:0;width:1px;
-    background:repeating-linear-gradient(to bottom,var(--b-med) 0,var(--b-med) 1px,transparent 1px,transparent 28px);
-  }
-  .tank-water {
-    position:absolute;bottom:0;left:0;right:0;
-    background:linear-gradient(180deg,var(--w-top) 0%,var(--w-bot) 100%);
-    transition:height 1.1s cubic-bezier(.4,0,.2,1);
-    border-radius:0 0 8px 8px;
-  }
-  .tank-water::before {
-    content:'';position:absolute;top:0;left:0;right:0;height:11px;
-    background:linear-gradient(180deg,var(--w-shine),transparent);
-    animation:surf 3s ease-in-out infinite;
-  }
-  @keyframes surf { 0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.7) translateY(-2px)} }
-  .tank-lbl { font-family:var(--f-data);font-size:.62rem;color:var(--acc);letter-spacing:1px }
-
-  /* Level info */
-  .lv-col { flex:1;display:flex;flex-direction:column;justify-content:space-between }
-  .lv-eye { font-family:var(--f-data);font-size:.6rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px }
-  .lv-num-row { display:flex;align-items:baseline;gap:3px;margin-bottom:3px }
-  .lv-num {
-    font-size:3.7rem;font-weight:700;letter-spacing:-2px;line-height:1;
-    color:var(--acc);text-shadow:0 0 18px var(--acc-g);
-    transition:color var(--tr);
-  }
-  .lv-sym { font-size:1.3rem;font-weight:600;color:var(--t3);padding-bottom:5px }
-  .lv-cap { font-family:var(--f-data);font-size:.7rem;color:var(--t2) }
-
-  .trend {
-    display:inline-flex;align-items:center;gap:4px;
-    padding:4px 9px;border-radius:6px;
-    font-family:var(--f-data);font-size:.68rem;font-weight:700;
-    letter-spacing:.5px;margin-top:8px;
-  }
-  .trend.up   { background:var(--crit-d);color:var(--crit) }
-  .trend.down { background:var(--ok-d);color:var(--ok) }
-  .trend.flat { background:var(--b-dim);color:var(--t3) }
-
-  /* ── Progress bar ── */
-  .prog-wrap {
-    background:var(--bg-surf);border:1px solid var(--b-dim);
-    border-radius:var(--r2);padding:15px;box-shadow:var(--sh-card);
-  }
-  .prog-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:9px }
-  .prog-lbl  { font-family:var(--f-data);font-size:.63rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px }
-  .prog-val  { font-family:var(--f-data);font-size:.73rem;color:var(--acc);font-weight:700 }
-  .prog-track {
-    height:7px;background:var(--bg-raise);border-radius:4px;overflow:hidden;position:relative;
-  }
-  .prog-track::before {
-    content:'';position:absolute;top:0;bottom:0;left:0;right:60%;
-    background:linear-gradient(90deg,var(--crit-d),transparent);
-  }
-  .prog-fill {
-    height:100%;border-radius:4px;
-    background:linear-gradient(90deg,var(--crit),var(--warn) 40%,var(--acc) 62%,var(--ok));
-    transition:width 1.1s cubic-bezier(.4,0,.2,1);
-    position:relative;z-index:1;
-  }
-  .prog-zones { display:flex;justify-content:space-between;margin-top:5px }
-  .zone-lbl   { font-family:var(--f-data);font-size:.56rem;color:var(--t3) }
-
-  /* ── Stats grid ── */
-  .sg { display:grid;grid-template-columns:repeat(2,1fr);gap:9px }
-  .sc {
-    background:var(--bg-surf);border:1px solid var(--b-dim);
-    border-radius:var(--r2);padding:14px 12px;
-    box-shadow:var(--sh-card);position:relative;overflow:hidden;
-  }
-  .sc::after { content:'';position:absolute;bottom:0;left:0;right:0;height:2px;opacity:.65 }
-  .sc.bl::after  { background:linear-gradient(90deg,var(--acc),transparent) }
-  .sc.gr::after  { background:linear-gradient(90deg,var(--ok),transparent) }
-  .sc.am::after  { background:linear-gradient(90deg,var(--warn),transparent) }
-  .sc.mu::after  { background:linear-gradient(90deg,var(--t3),transparent) }
-  .sc-ico { font-size:1.15rem;margin-bottom:6px }
-  .sc-lbl { font-family:var(--f-data);font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px }
-  .sc-val { font-family:var(--f-data);font-size:1.12rem;font-weight:700;color:var(--t1);line-height:1.1 }
-  .sc-sub { font-family:var(--f-data);font-size:.6rem;color:var(--t3);margin-top:2px }
-
-  /* ── Chart card ── */
-  .chart-card {
-    background:var(--bg-surf);border:1px solid var(--b-dim);
-    border-radius:var(--r3);padding:15px;box-shadow:var(--sh-card);
-  }
-  .card-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:11px }
-  .card-ttl  { font-family:var(--f-data);font-size:.63rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px }
-  .card-tag  { font-family:var(--f-data);font-size:.6rem;color:var(--acc);background:var(--acc-d);padding:3px 8px;border-radius:5px;border:1px solid var(--b-bright) }
-  .chart-wrap { position:relative;height:144px }
-
-  /* ── Info strip ── */
-  .info-strip { display:grid;grid-template-columns:repeat(3,1fr);gap:9px }
-  .ic {
-    background:var(--bg-surf);border:1px solid var(--b-dim);
-    border-radius:var(--r2);padding:12px 9px;
-    text-align:center;box-shadow:var(--sh-card);
-  }
-  .ic-ico { font-size:1.2rem;margin-bottom:3px }
-  .ic-lbl { font-family:var(--f-data);font-size:.56rem;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px }
-  .ic-val { font-family:var(--f-data);font-size:.88rem;font-weight:700;color:var(--t1) }
-
-  /* ── Notif prompt ── */
-  .notif-p {
-    background:var(--bg-surf);border:1px solid var(--b-med);
-    border-radius:var(--r2);padding:12px 13px;
-    display:none;align-items:center;gap:10px;
-  }
-  .notif-p.show { display:flex }
-  .notif-tx { flex:1 }
-  .notif-t1 { font-size:.81rem;font-weight:700;color:var(--t1) }
-  .notif-t2 { font-family:var(--f-data);font-size:.63rem;color:var(--t3);margin-top:1px }
-  .btn-notif {
-    background:var(--acc);color:var(--t-inv);border:none;
-    border-radius:7px;padding:7px 12px;
-    font-size:.76rem;font-weight:700;cursor:pointer;
-    font-family:var(--f-display);white-space:nowrap;
-    transition:opacity var(--tr);
-  }
-  .btn-notif:active { opacity:.8 }
-
-  /* ── Bottom nav ── */
-  .bnav {
-    position:fixed;bottom:0;left:0;right:0;z-index:50;
-    background:var(--bg-surf);border-top:1px solid var(--b-dim);
-    padding:5px 0 calc(var(--sb) + 5px);
-    display:none;
-    transition:background var(--tr);
-  }
-  .bnav.vis { display:block }
-  .nav-row { display:flex;width:100% }
-  .ni { flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px;cursor:pointer;transition:opacity var(--tr) }
-  .ni:active { opacity:.55 }
-  .ni-ico { font-size:1.2rem;transition:filter var(--tr) }
-  .ni-lbl { font-family:var(--f-data);font-size:.55rem;color:var(--t3);text-transform:uppercase;letter-spacing:.6px }
-  .ni.act .ni-ico { filter:drop-shadow(0 0 5px var(--acc)) }
-  .ni.act .ni-lbl { color:var(--acc) }
-
-  /* ── Top loading line ── */
-  .topline {
-    position:fixed;top:0;left:0;right:0;height:2px;z-index:300;
-    background:linear-gradient(90deg,var(--acc),var(--ok));
-    transform:scaleX(0);transform-origin:left;
-    transition:transform .4s ease;
-  }
-  .topline.ld { transform:scaleX(.7) }
-  .topline.dn { transform:scaleX(1);opacity:0;transition:transform .3s,opacity .3s .3s }
-
-  /* ── Responsive ── */
-  @media (min-width:480px) {
-    .sg { grid-template-columns:repeat(4,1fr) }
-    .lv-num { font-size:4.3rem }
-  }
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
-<div id="app">
-  <div class="topline" id="tl"></div>
 
-  <!-- ════════ SPLASH ════════ -->
-  <div class="screen active" id="splash">
-    <div class="sp-gauge">
-      <svg class="sp-svg" viewBox="0 0 100 100">
-        <circle class="sp-track" cx="50" cy="50" r="45"/>
-        <circle class="sp-arc"   cx="50" cy="50" r="45" id="spArc"/>
-      </svg>
-      <div class="sp-ico">💧</div>
-    </div>
-    <div class="sp-title">Monitor Caixa D'água</div>
-    <div class="sp-sub" id="spSub">Iniciando sistema</div>
+<header>
+  <h1>Caixa <span>D'água</span></h1>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span>
+      <span id="status-dot"></span>
+      <span id="status-text" style="font-size:.82rem;">Conectando...</span>
+    </span>
+    <span id="last-update">—</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- CONFIG BANNER -->
+  <div id="config-banner">
+    ⚙️ <strong>Configuração necessária:</strong> Edite o bloco <code>firebaseConfig</code> no final desta página com as credenciais do seu projeto Firebase. Configure o ESP-01 para enviar dados no formato <code>NIVEL:XX</code> via Serial (baud 9600).
   </div>
 
-  <!-- ════════ LOGIN ════════ -->
-  <div class="screen" id="login">
-    <div class="ln-card">
-      <div class="ln-top">
-        <div class="ln-emblem">💧</div>
-        <div class="ln-title">Acesso ao Sistema</div>
-        <div class="ln-sub">Monitor · v2.0</div>
-      </div>
-      <div class="ln-err" id="lnErr"><span>⚠</span><span>Usuário ou senha incorretos</span></div>
-      <div class="fld">
-        <label class="fld-lbl" for="un">Identificação</label>
-        <input type="text" id="un" class="fld-inp" placeholder="Usuário" autocomplete="username" inputmode="text">
-      </div>
-      <div class="fld">
-        <label class="fld-lbl" for="up">Senha de Acesso</label>
-        <input type="password" id="up" class="fld-inp" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <button class="btn-login" id="lnBtn" onclick="doLogin()">Entrar no Sistema</button>
+  <!-- ESP INFO CARD -->
+  <div id="esp-info-card" style="
+    background: rgba(47,129,247,.07);
+    border: 1px solid rgba(47,129,247,.3);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  ">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:.6rem;">
+      <span style="font-size:1.1rem;">📡</span>
+      <strong style="font-size:.85rem; letter-spacing:.04em; color:var(--accent);">ESP-01 — Configuração Ativa</strong>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.5rem .75rem;">
+      <div><span style="color:var(--muted);">WiFi SSID:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">ENGENHARIA 2.4G</code></div>
+      <div><span style="color:var(--muted);">Baud rate:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">9600</code></div>
+      <div><span style="color:var(--muted);">Firebase:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">projeto-caixa-dagua</code></div>
+      <div><span style="color:var(--muted);">Protocolo:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">HTTPS (WiFiClientSecure)</code></div>
+      <div><span style="color:var(--muted);">Formato Serial:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">NIVEL:80</code></div>
+      <div><span style="color:var(--muted);">Bomba ativa quando:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">nível ≤ 25%</code></div>
     </div>
   </div>
 
-  <!-- ════════ DASHBOARD ════════ -->
-  <div class="screen" id="dashboard">
-    <div class="status-spc"></div>
-
-    <!-- Topbar -->
-    <div class="tbar">
-      <div class="tbar-brand">
-        <div class="brand-mk">💧</div>
-        <div>
-          <div class="brand-name">Caixa D'água</div>
-          <div class="brand-meta" id="tbMeta">—</div>
-        </div>
-      </div>
-      <div class="tbar-right">
-        <div class="live-pill on" id="lPill">
-          <div class="live-dot"></div>
-          <span class="live-txt" id="lTxt">LIVE</span>
-        </div>
-        <div class="ico-btn theme" id="thBtn" onclick="toggleTheme()" title="Tema">
-          <span id="thIco">☀️</span>
-        </div>
-        <div class="ico-btn" onclick="doLogout()">⏻</div>
-      </div>
+  <!-- MÉTRICAS -->
+  <div class="metrics-grid">
+    <div class="metric-card" id="card-nivel">
+      <div class="label">Nível atual</div>
+      <div class="value" id="val-nivel">—%</div>
+      <div class="sub" id="sub-nivel">Aguardando dados...</div>
     </div>
-
-    <!-- Content -->
-    <div class="scroll" id="scrollEl">
-
-      <div class="notif-p fi" id="notifP">
-        <span style="font-size:1.3rem">🔔</span>
-        <div class="notif-tx">
-          <div class="notif-t1">Ativar alertas de nível?</div>
-          <div class="notif-t2">Receba notificações automáticas</div>
-        </div>
-        <button class="btn-notif" onclick="askNotif()">Ativar</button>
-      </div>
-
-      <div id="alertSlot" class="fi"></div>
-
-      <!-- Level card -->
-      <div class="lv-card fi">
-        <div class="tank-col">
-          <div class="tank-body">
-            <div class="tank-lid"></div>
-            <div class="tank-water" id="tankW" style="height:0%"></div>
-          </div>
-          <div class="tank-lbl" id="tankLbl">--%</div>
-        </div>
-        <div class="lv-col">
-          <div>
-            <div class="lv-eye">Nível Atual</div>
-            <div class="lv-num-row">
-              <span class="lv-num" id="lvNum">--</span>
-              <span class="lv-sym">%</span>
-            </div>
-            <div class="lv-cap" id="lvCap">Aguardando...</div>
-          </div>
-          <div id="trendEl"></div>
-        </div>
-      </div>
-
-      <!-- Progress bar -->
-      <div class="prog-wrap fi">
-        <div class="prog-head">
-          <span class="prog-lbl">Capacidade</span>
-          <span class="prog-val" id="progV">--%</span>
-        </div>
-        <div class="prog-track">
-          <div class="prog-fill" id="progF" style="width:0%"></div>
-        </div>
-        <div class="prog-zones">
-          <span class="zone-lbl">Crítico</span>
-          <span class="zone-lbl">Baixo</span>
-          <span class="zone-lbl">Normal</span>
-          <span class="zone-lbl">Cheio</span>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="sg fi">
-        <div class="sc bl">
-          <div class="sc-ico">⏱</div>
-          <div class="sc-lbl">P/ Encher</div>
-          <div class="sc-val" id="sFill">--</div>
-          <div class="sc-sub">estimado</div>
-        </div>
-        <div class="sc am">
-          <div class="sc-ico">⏳</div>
-          <div class="sc-lbl">P/ Esvaziar</div>
-          <div class="sc-val" id="sEmpty">--</div>
-          <div class="sc-sub">estimado</div>
-        </div>
-        <div class="sc gr">
-          <div class="sc-ico">🔄</div>
-          <div class="sc-lbl">Próx. Leitura</div>
-          <div class="sc-val" id="sNext">5:00</div>
-          <div class="sc-sub">countdown</div>
-        </div>
-        <div class="sc mu">
-          <div class="sc-ico">📡</div>
-          <div class="sc-lbl">Sistema</div>
-          <div class="sc-val" id="sSys">--</div>
-          <div class="sc-sub">status</div>
-        </div>
-      </div>
-
-      <!-- Chart -->
-      <div class="chart-card fi">
-        <div class="card-head">
-          <span class="card-ttl">Histórico de Nível</span>
-          <span class="card-tag" id="cTag">— leituras</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="lvChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Info strip -->
-      <div class="info-strip fi">
-        <div class="ic">
-          <div class="ic-ico">🕐</div>
-          <div class="ic-lbl">Última</div>
-          <div class="ic-val" id="iTime">--</div>
-        </div>
-        <div class="ic">
-          <div class="ic-ico">📈</div>
-          <div class="ic-lbl">Variação</div>
-          <div class="ic-val" id="iDelta">--</div>
-        </div>
-        <div class="ic">
-          <div class="ic-ico">📋</div>
-          <div class="ic-lbl">Registros</div>
-          <div class="ic-val" id="iCount">--</div>
-        </div>
-      </div>
-
-    </div><!-- /scroll -->
-  </div><!-- /dashboard -->
-</div><!-- /app -->
-
-<!-- Bottom Nav -->
-<nav class="bnav" id="bnav">
-  <div class="nav-row">
-    <div class="ni act" id="ni0" onclick="navClick(0)">
-      <span class="ni-ico">🏠</span><span class="ni-lbl">Início</span>
+    <div class="metric-card" id="card-bomba">
+      <div class="label">Bomba / Relé</div>
+      <div class="value" style="font-size:1.2rem; padding-top:.4rem;" id="val-bomba">—</div>
+      <div class="sub" id="sub-bomba"></div>
     </div>
-    <div class="ni" id="ni1" onclick="navClick(1);loadData()">
-      <span class="ni-ico">🔄</span><span class="ni-lbl">Atualizar</span>
+    <div class="metric-card" id="card-enchimento">
+      <div class="label">Enchimento</div>
+      <div class="value" style="font-size:1.3rem; padding-top:.3rem;" id="val-enchimento">—</div>
+      <div class="sub">Última vez de 25% → 100%</div>
     </div>
-    <div class="ni" id="ni2" onclick="navClick(2);toggleTheme()">
-      <span class="ni-ico" id="navTh">☀️</span><span class="ni-lbl">Tema</span>
-    </div>
-    <div class="ni" id="ni3" onclick="doLogout()">
-      <span class="ni-ico">👤</span><span class="ni-lbl">Sair</span>
+    <div class="metric-card" id="card-esvaziamento">
+      <div class="label">Esvaziamento</div>
+      <div class="value" style="font-size:1.3rem; padding-top:.3rem;" id="val-esvaziamento">—</div>
+      <div class="sub">Última vez de 100% → 25%</div>
     </div>
   </div>
-</nav>
 
+  <!-- TANQUE + LEDS -->
+  <div class="tank-row">
+    <div class="tank-wrap">
+      <span class="tank-title">Caixa visual</span>
+      <div class="tank-svg-wrap">
+        <svg id="tank-svg" viewBox="0 0 100 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- estrutura -->
+          <rect x="10" y="10" width="80" height="160" rx="6" fill="#1c2333" stroke="#30363d" stroke-width="2"/>
+          <!-- água -->
+          <clipPath id="tank-clip">
+            <rect x="12" y="12" width="76" height="156" rx="4"/>
+          </clipPath>
+          <rect id="water-rect" x="12" y="168" width="76" height="0" fill="#2f81f7" opacity="0.85" clip-path="url(#tank-clip)">
+            <animate id="water-anim" attributeName="y" dur=".6s" fill="freeze" />
+            <animate id="water-anim-h" attributeName="height" dur=".6s" fill="freeze" />
+          </rect>
+          <!-- marcações -->
+          <line x1="10" y1="49" x2="18" y2="49" stroke="#30363d" stroke-width="1"/>
+          <text x="20" y="53" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">75%</text>
+          <line x1="10" y1="88" x2="18" y2="88" stroke="#30363d" stroke-width="1"/>
+          <text x="20" y="92" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">50%</text>
+          <line x1="10" y1="127" x2="18" y2="127" stroke="#30363d" stroke-width="1"/>
+          <text x="20" y="131" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">25%</text>
+          <!-- contorno -->
+          <rect x="10" y="10" width="80" height="160" rx="6" fill="none" stroke="#30363d" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="tank-pct-label" id="tank-pct-label">0%</div>
+      <div class="leds">
+        <div class="led-row"><div class="led" id="led100"></div><span>100% — caixa cheia</span></div>
+        <div class="led-row"><div class="led" id="led75"></div><span>75%</span></div>
+        <div class="led-row"><div class="led" id="led50"></div><span>50%</span></div>
+        <div class="led-row"><div class="led" id="led25"></div><span>25% — boia crítica</span></div>
+      </div>
+      <!-- Indicadores de hardware -->
+      <div style="display:flex; flex-direction:column; gap:6px; width:100%; margin-top:4px;">
+        <div id="rele-badge" style="
+          display:flex; align-items:center; gap:6px;
+          border-radius:20px; padding:3px 10px; font-size:.75rem;
+          font-family:var(--font-mono);
+          background:rgba(125,133,144,.1); color:var(--muted);
+          border:1px solid rgba(125,133,144,.25); transition:all .3s;
+        ">
+          <span id="rele-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
+          <span id="rele-txt">Relé desligado</span>
+        </div>
+        <div id="buzzer-badge" class="buzzer-badge">
+          🔔 Buzzer ativo
+        </div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO HISTÓRICO -->
+    <div class="panel" style="flex:1;">
+      <div class="panel-header">
+        <span class="panel-title">Histórico de níveis</span>
+        <span class="panel-badge" id="badge-pts">0 pontos</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartNivel" role="img" aria-label="Gráfico de linha mostrando histórico de nível da caixa d'água"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPORIZADORES -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Temporizadores</span>
+    </div>
+    <div class="timer-grid">
+      <div class="timer-card">
+        <div class="timer-label">⬆ Enchimento (25% → 100%)</div>
+        <div class="timer-value" id="t-enchimento">— min</div>
+        <div class="timer-bar-wrap">
+          <div class="timer-bar" id="bar-enchimento" style="width:0%;background:#2f81f7;"></div>
+        </div>
+      </div>
+      <div class="timer-card">
+        <div class="timer-label">⬇ Esvaziamento (100% → 25%)</div>
+        <div class="timer-value" id="t-esvaziamento">— min</div>
+        <div class="timer-bar-wrap">
+          <div class="timer-bar" id="bar-esvaziamento" style="width:0%;background:#f85149;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABELA DE EVENTOS -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Últimos eventos</span>
+      <span class="panel-badge" id="badge-eventos">0 registros</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Nível</th>
+            <th>Bomba</th>
+            <th>Evento</th>
+          </tr>
+        </thead>
+        <tbody id="history-body">
+          <tr><td colspan="4" style="color:var(--muted); text-align:center; padding:1.5rem;">Aguardando dados do Firebase...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRÁFICO DE DISTRIBUIÇÃO -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Distribuição de tempo por nível</span>
+      <span class="panel-badge">últimas 24h</span>
+    </div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="chartDist" role="img" aria-label="Gráfico de barras com distribuição de tempo em cada nível"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Monitor Caixa D'água — Arduino + ESP-01 + Firebase &mdash;
+  Projeto: <code style="font-family:var(--font-mono); font-size:.75rem;">projeto-caixa-dagua</code> &mdash;
+  WiFi: <code style="font-family:var(--font-mono); font-size:.75rem;">ENGENHARIA 2.4G</code>
+</footer>
+
+<!-- ====================================================
+     FIREBASE + LÓGICA PRINCIPAL
+     ==================================================== -->
 <script>
-/* ── CONFIG ── */
-const USERS = { 'admin':'Marl@1890','usuario':'senha123','monitor':'monitor2024' };
-const API   = 'https://script.google.com/macros/s/AKfycbx7kaNvASekDf5duusiRwjq163R9KDs6NEuTqlieUW3f_7hPJo3MhWIS8NURT_tA04/exec';
+// =====================================================
+// ⚠️ CONFIGURE AQUI COM SEUS DADOS DO FIREBASE ⚠️
+// Acesse: console.firebase.google.com → Seu projeto
+// → Configurações → Configuração do app web
+// =====================================================
+const firebaseConfig = {
+  apiKey:            "AIzaSyDaHoZr619hMLmdLFA4pAPYp9JKc5bxNmU",
+  authDomain:        "projeto-caixa-dagua.firebaseapp.com",
+  databaseURL:       "https://projeto-caixa-dagua-default-rtdb.firebaseio.com",
+  projectId:         "projeto-caixa-dagua",
+  storageBucket:     "projeto-caixa-dagua.firebasestorage.app",
+  messagingSenderId: "194549239147",
+  appId:             "1:194549239147:web:6e9d9c5f0a48d18a20d02e"
+};
 
-let chart=null, cdTimer=null, countdown=300;
-let lastFill='--', lastEmpty='--';
-let prevLevel=-1, isDark=true;
+// =====================================================
+// INICIALIZAÇÃO
+// =====================================================
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-/* ── THEME ── */
-function applyTheme(dark) {
-  isDark = dark;
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  document.getElementById('metaThemeColor').content = dark ? '#0b1120' : '#f4f0e8';
-  const ico = dark ? '☀️' : '🌙';
-  document.getElementById('thIco').textContent  = ico;
-  document.getElementById('navTh').textContent  = ico;
-  localStorage.setItem('theme', dark ? 'dark' : 'light');
-  if (chart) rebuildChart(chart.data.labels, chart.data.datasets[0].data);
-}
-function toggleTheme() { applyTheme(!isDark) }
-function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() }
+// Firebase já configurado com o projeto real — desabilita modo demo
+const isMock = false;
 
-/* ── SPLASH ── */
-(function() {
-  applyTheme(localStorage.getItem('theme') !== 'light');
-  const arc  = document.getElementById('spArc');
-  const sub  = document.getElementById('spSub');
-  const msgs = ['Verificando credenciais','Conectando à API','Calibrando sensores','Pronto'];
-  const C    = 2 * Math.PI * 45;
-  let p=0, mi=0;
+// =====================================================
+// ESTADO
+// =====================================================
+let state = {
+  nivel: null,
+  bombaOn: false,
+  history: [],            // [{ts, nivel, bomba, evento}]
+  enchIni: null,          // timestamp quando chegou em 25% (bomba ligou)
+  esvIni: null,           // timestamp quando chegou em 100%
+  lastEnch: null,         // duração em min
+  lastEsv: null,
+  prevNivel: null,
+  // Buzzer — dispara 1x ao chegar em 25%, dura 10s (igual ao Arduino)
+  buzzerAtivo: false,
+  buzzerTimer: null
+};
 
-  const iv = setInterval(() => {
-    p += Math.random() * 11 + 5;
-    if (p > 100) p = 100;
-    arc.style.strokeDashoffset = C * (1 - p / 100);
-    if (p > (mi+1)*25 && mi < msgs.length-1) sub.textContent = msgs[++mi];
-    if (p >= 100) { clearInterval(iv); setTimeout(afterSplash, 260) }
-  }, 68);
-})();
-
-function afterSplash() {
-  if (localStorage.getItem('isLoggedIn') === 'true') {
-    showScreen('dashboard');
-    document.getElementById('bnav').classList.add('vis');
-    loadData();
-    maybeNotif();
-  } else {
-    showScreen('login');
+// =====================================================
+// CHART.JS — linha histórico
+// =====================================================
+const ctxNivel = document.getElementById('chartNivel').getContext('2d');
+const chartNivel = new Chart(ctxNivel, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Nível (%)',
+      data: [],
+      borderColor: '#2f81f7',
+      backgroundColor: 'rgba(47,129,247,.1)',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointBackgroundColor: '#2f81f7',
+      fill: true,
+      tension: 0.3,
+      stepped: 'before'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 400 },
+    scales: {
+      x: {
+        ticks: { color: '#7d8590', font: { family: 'DM Mono', size: 10 }, maxRotation: 45 },
+        grid: { color: 'rgba(48,54,61,.5)' }
+      },
+      y: {
+        min: 0, max: 100,
+        ticks: {
+          color: '#7d8590',
+          stepSize: 25,
+          callback: v => v + '%'
+        },
+        grid: { color: 'rgba(48,54,61,.5)' }
+      }
+    },
+    plugins: { legend: { display: false } }
   }
-}
-
-/* ── SCREEN ── */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.getElementById('bnav').classList.toggle('vis', id === 'dashboard');
-}
-
-/* ── AUTH ── */
-function doLogin() {
-  const u=document.getElementById('un').value.trim();
-  const p=document.getElementById('up').value;
-  const btn=document.getElementById('lnBtn');
-  const err=document.getElementById('lnErr');
-  err.classList.remove('show');
-  btn.disabled=true; btn.textContent='Verificando...';
-  setTimeout(() => {
-    if (USERS[u] && USERS[u]===p) {
-      localStorage.setItem('isLoggedIn','true');
-      localStorage.setItem('user',u);
-      showScreen('dashboard');
-      loadData(); maybeNotif();
-    } else {
-      err.classList.add('show');
-      document.getElementById('up').value='';
-      btn.disabled=false; btn.textContent='Entrar no Sistema';
-      if (navigator.vibrate) navigator.vibrate([80,40,80]);
-    }
-  }, 440);
-}
-
-function doLogout() {
-  if (!confirm('Sair do sistema?')) return;
-  localStorage.removeItem('isLoggedIn'); localStorage.removeItem('user');
-  if (cdTimer) { clearInterval(cdTimer); cdTimer=null }
-  if (chart)   { chart.destroy(); chart=null }
-  document.getElementById('un').value=''; document.getElementById('up').value='';
-  showScreen('login');
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key==='Enter' && document.getElementById('login').classList.contains('active')) doLogin();
 });
 
-/* ── NOTIFICATIONS ── */
-function maybeNotif() {
-  if ('Notification' in window && Notification.permission==='default')
-    document.getElementById('notifP').classList.add('show');
-}
-async function askNotif() {
-  document.getElementById('notifP').classList.remove('show');
-  if (!('Notification' in window)) return;
-  if (await Notification.requestPermission() === 'granted')
-    new Notification('Sistema Ativo', { body:'Alertas habilitados!', icon:'./icons/icon-192.png' });
-}
-function fireNotif(t, b) {
-  if (Notification.permission==='granted') new Notification(t,{body:b,icon:'./icons/icon-192.png'});
-  if (navigator.vibrate) navigator.vibrate([200,80,200]);
-}
-
-/* ── LOADING ── */
-function setLoad(on) {
-  document.getElementById('tl').className = 'topline ' + (on ? 'ld' : 'dn');
-}
-
-/* ── LIVE ── */
-function setLive(on) {
-  const p=document.getElementById('lPill'), t=document.getElementById('lTxt');
-  p.className='live-pill '+(on?'on':'off');
-  t.textContent=on?'LIVE':'OFFLINE';
-}
-
-/* ── DATA ── */
-async function loadData() {
-  setLoad(true);
-  try {
-    const r = await fetch(API, {method:'GET',redirect:'follow',mode:'cors'});
-    const j = await r.json();
-    if (!j.success || !j.data?.length) throw new Error('sem dados');
-    updateUI(j.data); setLive(true);
-    if (!cdTimer) startCD();
-  } catch(e) {
-    setLive(false);
-    setAlert('crit','⚡','Falha de conexão','Não foi possível carregar os dados');
-    document.getElementById('sSys').textContent='ERRO';
-  } finally {
-    setLoad(false); countdown=300;
-  }
-}
-
-function updateUI(data) {
-  const lat=data[data.length-1], lvl=lat.level;
-  const prv=data.length>=2?data[data.length-2].level:lvl;
-  const dif=+(lvl-prv).toFixed(1);
-
-  document.getElementById('lvNum').textContent  = lvl;
-  document.getElementById('tankLbl').textContent = lvl+'%';
-  document.getElementById('tankW').style.height  = lvl+'%';
-  document.getElementById('progF').style.width   = lvl+'%';
-  document.getElementById('progV').textContent   = lvl+'%';
-  document.getElementById('sSys').textContent    = 'ONLINE';
-  document.getElementById('iCount').textContent  = data.length;
-  document.getElementById('iDelta').textContent  = (dif>=0?'+':'')+dif+'%';
-
-  const dt=new Date(lat.dateTime), now=new Date();
-  const mins=Math.round((now-dt)/60000);
-  const ago = mins<1?'agora':mins<60?mins+'min atrás':Math.floor(mins/60)+'h atrás';
-  document.getElementById('tbMeta').textContent = ago;
-  document.getElementById('lvCap').textContent  = 'Lido '+ago;
-  document.getElementById('iTime').textContent  = dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
-
-  const te=document.getElementById('trendEl');
-  if (dif>0) te.innerHTML=`<span class="trend up">↑ +${dif}% enchendo</span>`;
-  else if (dif<0) te.innerHTML=`<span class="trend down">↓ ${dif}% esvaziando</span>`;
-  else te.innerHTML=`<span class="trend flat">→ estável</span>`;
-
-  if (lvl<=20) {
-    setAlert('crit','🚨','Nível Crítico!',`Apenas ${lvl}% — acione a bomba imediatamente!`);
-    if (prevLevel>20||prevLevel<0) fireNotif('🚨 Nível Crítico!',`Caixa com apenas ${lvl}%!`);
-  } else if (lvl<=40) {
-    setAlert('warn','⚠️','Nível Baixo',`${lvl}% disponível. Considere acionar a bomba.`);
-    if (prevLevel>40||prevLevel<0) fireNotif('⚠️ Nível Baixo',`Caixa com ${lvl}%.`);
-  } else if (lvl<=65) {
-    setAlert('warn','💧','Nível Médio',`${lvl}% disponível. Tudo sob controle.`);
-  } else {
-    setAlert('ok','✅','Nível Adequado',`${lvl}% — sistema funcionando normalmente.`);
-  }
-  prevLevel=lvl;
-  calcTimings(data); renderChart(data);
-}
-
-function setAlert(tp, ico, t, b) {
-  document.getElementById('alertSlot').innerHTML=
-    `<div class="alert ${tp}"><span class="alert-ico">${ico}</span><div><div class="alert-title">${t}</div><div class="alert-body">${b}</div></div></div>`;
-}
-
-/* ── TIMINGS ── */
-function calcTimings(data) {
-  if (data.length<2) return;
-  let lo=100, hi=0;
-  for (const d of data) { if(d.level<lo) lo=d.level; if(d.level>hi) hi=d.level }
-  let li=-1, hi2=-1;
-  for (let i=data.length-1;i>=0;i--) {
-    if (li<0&&data[i].level<=lo+5) li=i;
-    if (hi2<0&&data[i].level>=hi-5) hi2=i;
-    if (li>=0&&hi2>=0) break;
-  }
-  if (li>=0&&hi2>=0&&hi2>li) { lastFill=fmtM((new Date(data[hi2].dateTime)-new Date(data[li].dateTime))/60000); localStorage.setItem('lf',lastFill) }
-  if (li>=0&&hi2>=0&&li>hi2)  { lastEmpty=fmtM((new Date(data[li].dateTime)-new Date(data[hi2].dateTime))/60000); localStorage.setItem('le',lastEmpty) }
-  lastFill=localStorage.getItem('lf')||'--';
-  lastEmpty=localStorage.getItem('le')||'--';
-  document.getElementById('sFill').textContent=lastFill;
-  document.getElementById('sEmpty').textContent=lastEmpty;
-}
-function fmtM(m) {
-  if (m<60) return Math.round(m)+'min';
-  if (m<1440) { const h=Math.floor(m/60),mi=Math.round(m%60); return h+'h'+(mi>0?mi+'m':'') }
-  const d=Math.floor(m/1440),h=Math.floor((m%1440)/60); return d+'d'+(h>0?h+'h':'');
-}
-
-/* ── CHART ── */
-function renderChart(data) {
-  const pts=data.slice(-8);
-  const labels=pts.map(d => {
-    const dt=new Date(d.dateTime);
-    return dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
-  });
-  document.getElementById('cTag').textContent=pts.length+' leituras';
-  rebuildChart(labels, pts.map(d=>d.level));
-}
-
-function rebuildChart(labels, values) {
-  const ctx=document.getElementById('lvChart').getContext('2d');
-  const lc=css('--ch-line'), t3=css('--t3'), bd=css('--b-dim'), t2=css('--t2'), bgr=css('--bg-raise');
-  const grad=ctx.createLinearGradient(0,0,0,144);
-  grad.addColorStop(0,css('--ch-f0')); grad.addColorStop(1,css('--ch-f1'));
-  if (chart) chart.destroy();
-  chart=new Chart(ctx, {
-    type:'line',
-    data:{
-      labels,
-      datasets:[{
-        data:values, borderColor:lc, backgroundColor:grad,
-        borderWidth:2.5, fill:true, tension:.42,
-        pointBackgroundColor:lc, pointBorderColor:bgr,
-        pointBorderWidth:2, pointRadius:4, pointHoverRadius:6
-      }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      animation:{duration:480,easing:'easeInOutQuart'},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:css('--bg-over'), borderColor:css('--b-bright'), borderWidth:1,
-          titleColor:t2, bodyColor:lc, padding:10, displayColors:false,
-          titleFont:{family:"'Share Tech Mono',monospace",size:11},
-          bodyFont:{family:"'Share Tech Mono',monospace",size:13},
-          callbacks:{label:c=>'Nível: '+c.parsed.y+'%'}
-        }
-      },
-      scales:{
-        y:{beginAtZero:true,max:100,grid:{color:bd},ticks:{color:t3,font:{size:10,family:"'Share Tech Mono',monospace"},callback:v=>v+'%'},border:{color:'transparent'}},
-        x:{grid:{color:bd},ticks:{color:t3,font:{size:9,family:"'Share Tech Mono',monospace"},maxRotation:0},border:{color:'transparent'}}
+// =====================================================
+// CHART.JS — barras distribuição
+// =====================================================
+const ctxDist = document.getElementById('chartDist').getContext('2d');
+const chartDist = new Chart(ctxDist, {
+  type: 'bar',
+  data: {
+    labels: ['0%', '25%', '50%', '75%', '100%'],
+    datasets: [{
+      label: 'Tempo (min)',
+      data: [0, 0, 0, 0, 0],
+      backgroundColor: ['#f85149','#e3b341','#2f81f7','#56d364','#56d364'],
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 400 },
+    scales: {
+      x: { ticks: { color: '#7d8590' }, grid: { display: false } },
+      y: {
+        ticks: { color: '#7d8590', callback: v => v + 'min' },
+        grid: { color: 'rgba(48,54,61,.5)' }
       }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// =====================================================
+// FUNÇÕES DE UI
+// =====================================================
+function fmt(ms) {
+  if (!ms) return '—';
+  const s = Math.round(ms / 1000);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return h + 'h ' + (m % 60) + 'min';
+  return m + 'min';
+}
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function setTank(pct) {
+  const maxH = 156;
+  const h = (pct / 100) * maxH;
+  const y = 168 - h;
+  document.getElementById('water-rect').setAttribute('y', y);
+  document.getElementById('water-rect').setAttribute('height', h);
+  document.getElementById('tank-pct-label').textContent = pct + '%';
+
+  const colors = { 0:'#f85149', 25:'#e3b341', 50:'#2f81f7', 75:'#56d364', 100:'#56d364' };
+  const c = colors[pct] || '#2f81f7';
+  document.getElementById('water-rect').setAttribute('fill', c);
+}
+
+function setLeds(pct) {
+  const ids  = [25, 50, 75, 100];
+  const cols = { 25:'on-red', 50:'on-blue', 75:'on-yellow', 100:'on-green' };
+  ids.forEach(v => {
+    const el = document.getElementById('led' + v);
+    el.className = 'led';
+    if (pct >= v) el.classList.add(cols[v]);
+    // L25 pisca em 0% E em 25% (igual ao Arduino: LED piscando nas duas condições críticas)
+    if (v === 25 && (pct === 25 || pct === 0)) {
+      el.classList.add('on-red');
+      el.classList.add('blink');
     }
   });
 }
 
-/* ── COUNTDOWN ── */
-function startCD() {
-  cdTimer=setInterval(()=>{
-    countdown--;
-    const m=Math.floor(countdown/60), s=countdown%60;
-    document.getElementById('sNext').textContent=m+':'+s.toString().padStart(2,'0');
-    if (countdown<=0) loadData();
-  },1000);
+function setMetricCard(id, extra) {
+  const card = document.getElementById('card-' + id);
+  card.className = 'metric-card ' + (extra || '');
 }
 
-/* ── NAV ── */
-function navClick(i) {
-  [0,1,2,3].forEach(n=>document.getElementById('ni'+n).classList.remove('act'));
-  document.getElementById('ni'+i).classList.add('act');
-  // Return to home after refresh
-  if (i!==0) setTimeout(()=>{ document.getElementById('ni'+i).classList.remove('act'); document.getElementById('ni0').classList.add('act') },1200);
+function updateUI() {
+  const { nivel, bombaOn, lastEnch, lastEsv, history, buzzerAtivo } = state;
+  if (nivel === null) return;
+
+  // nível — descrições alinhadas ao Arduino
+  const nivelSubs = {
+    0:   'Caixa vazia — sem leitura de boia',
+    25:  'Boia crítica ativa — relé ligado, buzzer 10s',
+    50:  'Nível médio',
+    75:  'Nível bom',
+    100: 'Caixa cheia — relé desligado'
+  };
+  const valEl = document.getElementById('val-nivel');
+  valEl.textContent = nivel + '%';
+  // Pisca o valor a 0% e 25% (igual ao LCD do Arduino)
+  if (nivel === 0 || nivel === 25) {
+    valEl.classList.add('blink-text');
+  } else {
+    valEl.classList.remove('blink-text');
+  }
+  document.getElementById('sub-nivel').textContent = nivelSubs[nivel] || '';
+  // Danger em 0% e 25%, success em 100%
+  const nivelClass = (nivel === 0 || nivel === 25) ? 'danger' : nivel === 100 ? 'success' : '';
+  setMetricCard('nivel', nivelClass);
+
+  // bomba
+  document.getElementById('val-bomba').innerHTML =
+    '<span class="relay-badge ' + (bombaOn ? 'relay-on' : 'relay-off') + '">' +
+    (bombaOn ? '⚡ Ligada' : '○ Desligada') + '</span>';
+  setMetricCard('bomba', bombaOn ? 'danger' : '');
+
+  // Relé badge na caixa visual
+  const releEl  = document.getElementById('rele-badge');
+  const releDot = document.getElementById('rele-dot');
+  const releTxt = document.getElementById('rele-txt');
+  if (bombaOn) {
+    releEl.style.background = 'rgba(248,81,73,.12)';
+    releEl.style.borderColor = 'rgba(248,81,73,.4)';
+    releEl.style.color = '#f85149';
+    releDot.style.background = '#f85149';
+    releDot.style.boxShadow = '0 0 5px #f85149';
+    releTxt.textContent = 'Relé A0 — ligado (bomba)';
+  } else {
+    releEl.style.background = 'rgba(86,211,100,.08)';
+    releEl.style.borderColor = 'rgba(86,211,100,.3)';
+    releEl.style.color = '#56d364';
+    releDot.style.background = '#56d364';
+    releDot.style.boxShadow = '0 0 5px #56d364';
+    releTxt.textContent = 'Relé A0 — desligado';
+  }
+
+  // Buzzer badge (10s ao atingir 25%)
+  const buzzerEl = document.getElementById('buzzer-badge');
+  if (buzzerAtivo) buzzerEl.classList.add('ativo');
+  else             buzzerEl.classList.remove('ativo');
+
+  // enchimento / esvaziamento
+  document.getElementById('val-enchimento').textContent  = fmt(lastEnch);
+  document.getElementById('val-esvaziamento').textContent = fmt(lastEsv);
+
+  // tanque visual + leds
+  setTank(nivel);
+  setLeds(nivel);
+
+  // temporizadores na barra
+  const maxEnch = 120 * 60 * 1000; // 2h referência
+  const maxEsv  = 480 * 60 * 1000; // 8h referência
+  document.getElementById('t-enchimento').textContent  = fmt(lastEnch);
+  document.getElementById('t-esvaziamento').textContent = fmt(lastEsv);
+  document.getElementById('bar-enchimento').style.width =
+    lastEnch ? Math.min(100, (lastEnch / maxEnch) * 100) + '%' : '0%';
+  document.getElementById('bar-esvaziamento').style.width =
+    lastEsv ? Math.min(100, (lastEsv / maxEsv) * 100) + '%' : '0%';
+
+  // gráfico linha
+  const slice = history.slice(-60);
+  chartNivel.data.labels = slice.map(r => fmtDate(r.ts));
+  chartNivel.data.datasets[0].data = slice.map(r => r.nivel);
+  chartNivel.update('none');
+  document.getElementById('badge-pts').textContent = history.length + ' pontos';
+
+  // gráfico distribuição — conta registros por nível
+  const cnt = { 0:0, 25:0, 50:0, 75:0, 100:0 };
+  history.forEach(r => { if (cnt[r.nivel] !== undefined) cnt[r.nivel]++; });
+  chartDist.data.datasets[0].data = [cnt[0], cnt[25], cnt[50], cnt[75], cnt[100]];
+  chartDist.update('none');
+
+  // tabela
+  updateTable();
+
+  // last update
+  document.getElementById('last-update').textContent =
+    new Date().toLocaleTimeString('pt-BR');
 }
 
-/* ── CONNECTIVITY ── */
-window.addEventListener('online',  ()=>{ setLive(true); loadData() });
-window.addEventListener('offline', ()=>setLive(false));
+function updateTable() {
+  const tbody = document.getElementById('history-body');
+  const rows  = state.history.slice(-30).reverse();
+  document.getElementById('badge-eventos').textContent = rows.length + ' registros';
+  if (!rows.length) return;
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${new Date(r.ts).toLocaleString('pt-BR')}</td>
+      <td><span class="pill pill-${r.nivel}">${r.nivel}%</span></td>
+      <td><span class="relay-badge ${r.bomba ? 'relay-on' : 'relay-off'}">${r.bomba ? '⚡ On' : '○ Off'}</span></td>
+      <td style="color:var(--muted)">${r.evento || '—'}</td>
+    </tr>`).join('');
+}
+
+// =====================================================
+// PROCESSA LEITURA DE NÍVEL
+// Espelha exatamente a lógica do Arduino:
+//   - Relé liga em 25%, desliga em 100%
+//   - Buzzer dispara 1x em 25%, dura 10s
+//   - Níveis válidos: 0, 25, 50, 75, 100
+// =====================================================
+function processNivel(nivel, ts) {
+  const prev = state.prevNivel;
+  let evento = '';
+
+  // ---- RELÉ (igual ao Arduino) ----
+  // Liga ao chegar exatamente em 25% (bomba precisa encher)
+  if (nivel === 25 && !state.bombaOn) {
+    state.bombaOn = true;
+    evento = 'Relé A0 ligado — bomba acionada';
+  }
+  // Desliga ao chegar em 100% (caixa cheia)
+  if (nivel === 100 && state.bombaOn) {
+    state.bombaOn = false;
+    evento = 'Relé A0 desligado — caixa cheia';
+  }
+
+  // ---- BUZZER (igual ao Arduino) ----
+  // jaDisparouBuzzer: só dispara 1x por evento de 25%
+  // Reseta quando sai de 25%
+  if (nivel === 25 && prev !== 25 && !state.buzzerAtivo) {
+    state.buzzerAtivo = true;
+    updateUI(); // atualiza badge imediatamente
+    if (state.buzzerTimer) clearTimeout(state.buzzerTimer);
+    // Dura 10s exatos (const buzzerTempo = 10000 no Arduino)
+    state.buzzerTimer = setTimeout(() => {
+      state.buzzerAtivo = false;
+      updateUI();
+    }, 10000);
+  }
+  if (nivel !== 25) {
+    state.buzzerAtivo = false;
+    if (state.buzzerTimer) { clearTimeout(state.buzzerTimer); state.buzzerTimer = null; }
+  }
+
+  // ---- ENCHIMENTO (25% → 100%) ----
+  // Inicia quando sai de 25% subindo (bomba já ligou)
+  if (prev === 25 && nivel > 25) {
+    state.enchIni = ts;
+    if (!evento) evento = 'Enchimento iniciado (bomba ligada)';
+  }
+  if (nivel === 100 && prev !== null && prev < 100 && state.enchIni) {
+    state.lastEnch = ts - state.enchIni;
+    state.enchIni = null;
+    evento = 'Caixa cheia — enchimento: ' + fmt(state.lastEnch);
+    salvarTempo('enchimento', state.lastEnch, ts);
+  }
+
+  // ---- ESVAZIAMENTO (100% → 25%) ----
+  if (prev === 100 && nivel < 100) {
+    state.esvIni = ts;
+    if (!evento) evento = 'Consumo iniciado';
+  }
+  if (nivel === 25 && prev !== null && prev > 25 && state.esvIni) {
+    state.lastEsv = ts - state.esvIni;
+    state.esvIni = null;
+    if (!evento) evento = 'Nível crítico — consumo: ' + fmt(state.lastEsv);
+    salvarTempo('esvaziamento', state.lastEsv, ts);
+  }
+
+  // ---- 0%: caixa vazia ----
+  if (nivel === 0 && prev !== 0) {
+    if (!evento) evento = 'Caixa vazia — nenhuma boia ativa';
+  }
+
+  state.nivel = nivel;
+  state.prevNivel = nivel;
+
+  // adiciona ao histórico
+  state.history.push({ ts, nivel, bomba: state.bombaOn, evento });
+
+  updateUI();
+  return evento;
+}
+
+// =====================================================
+// FIREBASE — ESCUTA DADOS DO ESP
+// =====================================================
+function salvarTempo(tipo, durMs, ts) {
+  db.ref('caixa_dagua/tempos').push({
+    tipo,
+    duracao_ms: durMs,
+    duracao_fmt: fmt(durMs),
+    ts
+  });
+}
+
+function iniciarFirebase() {
+  const refNivel   = db.ref('caixa_dagua/nivel_atual');
+  const refHistory = db.ref('caixa_dagua/historico');
+
+  // status de conexão
+  db.ref('.info/connected').on('value', snap => {
+    const online = snap.val();
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    dot.className = 'online' + (online ? '' : ' offline');
+    text.textContent = online ? 'Online' : 'Offline';
+    document.getElementById('config-banner').classList.remove('show');
+  });
+
+  // nível em tempo real
+  // O ESP-01 usa millis() (ms desde o boot, não Unix epoch).
+  // Usamos Date.now() para o timestamp real de exibição.
+  refNivel.on('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    const nivel = parseInt(data.percentual);
+    const ts    = Date.now(); // millis() do ESP não é Unix epoch
+    processNivel(nivel, ts);
+  });
+
+  // histórico (últimos 200)
+  refHistory.limitToLast(200).once('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    // Ordena pelas chaves push do Firebase (cronológico) e usa índice relativo para ts estimado
+    const entries = Object.entries(data).sort((a,b) => a[0] > b[0] ? 1 : -1);
+    const now = Date.now();
+    state.history = entries.map(([key, r], i) => ({
+      ts:     now - (entries.length - 1 - i) * 5000, // estimativa: 5s entre leituras
+      nivel:  r.nivel,
+      bomba:  r.bomba || false,
+      evento: r.evento || '',
+      _key:   key
+    }));
+    state.prevNivel = state.history.length ? state.history[state.history.length - 1].nivel : null;
+    updateUI();
+  });
+
+  // escuta novos registros do histórico
+  refHistory.limitToLast(1).on('child_added', snap => {
+    const r = snap.val();
+    if (!r) return;
+    // Evita duplicatas; usa Date.now() pois ESP envia millis() não epoch
+    const tsReal = Date.now();
+    if (state.history.length && state.history[state.history.length-1]._key === snap.key) return;
+    state.history.push({ ts: tsReal, nivel: r.nivel, bomba: r.bomba || false, evento: r.evento || '', _key: snap.key });
+    updateUI();
+  });
+}
+
+// =====================================================
+// MOCK (sem Firebase configurado)
+// =====================================================
+function iniciarMock() {
+  document.getElementById('status-dot').className = 'online';
+  document.getElementById('status-text').textContent = 'Demo (sem Firebase)';
+
+  const niveis = [25, 50, 50, 75, 75, 100, 100, 75, 50, 25];
+  let idx = 0;
+  const base = Date.now() - niveis.length * 60000;
+
+  niveis.forEach((n, i) => {
+    processNivel(n, base + i * 60000);
+  });
+
+  setInterval(() => {
+    idx = (idx + 1) % niveis.length;
+    processNivel(niveis[idx], Date.now());
+  }, 4000);
+}
+
+// =====================================================
+// INÍCIO
+// =====================================================
+if (isMock) {
+  iniciarMock();
+} else {
+  iniciarFirebase();
+}
 </script>
+
+<!--
+=======================================================
+  CÓDIGO ESP-01 (Arduino IDE) — sketch atual
+
+  Recebe o nível via Serial do Arduino/sensor e
+  publica no Firebase via HTTPS REST API.
+
+  Bibliotecas necessárias (Library Manager):
+  - ESP8266WiFi       (inclusa no ESP8266 board package)
+  - ESP8266HTTPClient (inclusa no ESP8266 board package)
+
+  -------------------------------------------------------
+  #include <ESP8266WiFi.h>
+  #include <ESP8266HTTPClient.h>
+  #include <WiFiClientSecure.h>
+
+  const char* ssid     = "ENGENHARIA 2.4G";
+  const char* password = "ENGENHARIA2025";
+
+  // Firebase Realtime Database
+  const char* fbHost = "https://projeto-caixa-dagua-default-rtdb.firebaseio.com";
+
+  WiFiClientSecure client;
+
+  void setup() {
+    Serial.begin(9600);
+    WiFi.begin(ssid, password);
+    Serial.print("Conectando WiFi");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("\nWiFi conectado!");
+    client.setInsecure();   // aceita certificado sem validação
+    Serial.println("Sistema pronto.");
+    Serial.println("Digite: NIVEL:80");
+  }
+
+  void loop() {
+    if (Serial.available()) {
+      String line = Serial.readStringUntil('\n');
+      line.trim();
+      Serial.print("Recebido: ");
+      Serial.println(line);
+      if (line.startsWith("NIVEL:")) {
+        int pct = line.substring(6).toInt();
+        Serial.print("Nivel detectado: ");
+        Serial.println(pct);
+        enviarFirebase(pct);
+      }
+    }
+  }
+
+  void enviarFirebase(int pct) {
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi desconectado!");
+      return;
+    }
+    HTTPClient http;
+    long ts = millis();
+
+    // ===== NIVEL ATUAL =====
+    String url1  = String(fbHost) + "/caixa_dagua/nivel_atual.json";
+    String body1 = "{\"percentual\":" + String(pct) +
+                   ",\"timestamp\":"  + String(ts) + "}";
+    Serial.println("Enviando nivel atual...");
+    http.begin(client, url1);
+    http.addHeader("Content-Type", "application/json");
+    int code1 = http.PUT(body1);
+    Serial.print("HTTP nivel atual: "); Serial.println(code1);
+    http.end();
+
+    // ===== HISTORICO =====
+    String url2  = String(fbHost) + "/caixa_dagua/historico.json";
+    String body2 = "{\"nivel\":"  + String(pct) +
+                   ",\"ts\":"     + String(ts)  +
+                   ",\"bomba\":"  + String(pct <= 25 ? "true" : "false") + "}";
+    Serial.println("Salvando historico...");
+    http.begin(client, url2);
+    http.addHeader("Content-Type", "application/json");
+    int code2 = http.POST(body2);
+    Serial.print("HTTP historico: "); Serial.println(code2);
+    http.end();
+
+    Serial.println("Dados enviados!");
+  }
+=======================================================
+-->
+
 </body>
 </html>
