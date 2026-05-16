@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Caixa D'água — Monitor</title>
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-  <!-- Chart.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet" />
@@ -47,7 +43,6 @@
       padding: 0;
     }
 
-    /* ===== HEADER ===== */
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -59,11 +54,7 @@
       top: 0;
       z-index: 100;
     }
-    header h1 {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      letter-spacing: 0.01em;
-    }
+    header h1 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.01em; }
     header h1 span { color: var(--accent); }
 
     #status-dot {
@@ -74,19 +65,12 @@
       margin-right: 8px;
       animation: pulse 2s infinite;
     }
-    #status-dot.online { background: var(--accent2); }
+    #status-dot.online  { background: var(--accent2); }
     #status-dot.offline { background: var(--danger); animation: none; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
-    #last-update {
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-family: var(--font-mono);
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ===== MAIN ===== */
+    #last-update { font-size: 0.78rem; color: var(--muted); font-family: var(--font-mono); }
+
     main {
       max-width: 1100px;
       margin: 0 auto;
@@ -96,7 +80,6 @@
       gap: 1.5rem;
     }
 
-    /* ===== CONFIG BANNER ===== */
     #config-banner {
       background: rgba(227,179,65,.1);
       border: 1px solid var(--warn);
@@ -115,12 +98,7 @@
       font-size: 0.82rem;
     }
 
-    /* ===== CARDS GRID ===== */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-    }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
     .metric-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -140,34 +118,19 @@
     .metric-card.danger::before  { background: var(--danger); }
     .metric-card.warn::before    { background: var(--warn); }
     .metric-card.success::before { background: var(--accent2); }
-    .metric-card .label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .metric-card .value {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      line-height: 1;
-    }
-    .metric-card .sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
+    .metric-card .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+    .metric-card .value { font-family: var(--font-display); font-size: 2rem; line-height: 1; }
+    .metric-card .sub   { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
 
-    /* ===== TANK VISUAL ===== */
+    /* ===== TANK ROW ===== */
     .tank-row {
       display: grid;
       grid-template-columns: 200px 1fr;
       gap: 1.5rem;
       align-items: start;
     }
-    @media (max-width: 640px) {
-      .tank-row { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 640px) { .tank-row { grid-template-columns: 1fr; } }
+
     .tank-wrap {
       background: var(--card);
       border: 1px solid var(--border);
@@ -178,39 +141,116 @@
       align-items: center;
       gap: 1rem;
     }
-    .tank-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      align-self: flex-start;
+    .tank-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); align-self: flex-start; }
+
+    /* ===== CAIXA VISUAL ANIMADA ===== */
+    .tank-outer-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
     }
-    .tank-svg-wrap {
+    .tank-cap {
+      width: 116px;
+      height: 8px;
+      background: #30363d;
+      border-radius: 4px 4px 0 0;
+    }
+    .tank-body {
       position: relative;
       width: 100px;
       height: 180px;
+      border: 2px solid #30363d;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      background: #131a24;
+      overflow: hidden;
     }
-    #tank-svg { width: 100%; height: 100%; }
+
+    /* água que sobe/desce com CSS transition */
+    #water-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0%;
+      background: #2f81f7;
+      transition: height 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                  background 0.6s ease;
+      overflow: hidden;
+    }
+
+    /* ondas na superfície */
+    .wave-svg {
+      position: absolute;
+      top: -7px;
+      left: -20px;
+      width: calc(100% + 40px);
+      height: 14px;
+      pointer-events: none;
+    }
+    #wave-path1 { animation: tank-wave1 2.2s linear infinite; }
+    #wave-path2 { animation: tank-wave2 3.1s linear infinite; }
+
+    @keyframes tank-wave1 {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(46px); }
+    }
+    @keyframes tank-wave2 {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-46px); }
+    }
+
+    /* bolhas flutuantes */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      animation: bubble-rise linear infinite;
+      pointer-events: none;
+    }
+    @keyframes bubble-rise {
+      0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+      80%  { opacity: 0.3; }
+      100% { transform: translateY(-180px) scale(0.5); opacity: 0; }
+    }
+
+    /* marcações laterais */
+    .tank-marks {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .tank-mark {
+      position: absolute;
+      right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 7px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+    }
+    .tank-mark::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 1px;
+      background: var(--border);
+    }
+
     .tank-pct-label {
       font-family: var(--font-display);
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       color: var(--text);
+      margin-top: 10px;
+      transition: color 0.5s;
     }
 
     /* ===== LEDS ===== */
-    .leds {
-      display: flex;
-      gap: 10px;
-      flex-direction: column;
-      align-items: flex-start;
-      width: 100%;
-    }
-    .led-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.82rem;
-    }
+    .leds { display: flex; gap: 10px; flex-direction: column; align-items: flex-start; width: 100%; }
+    .led-row { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; }
     .led {
       width: 14px; height: 14px;
       border-radius: 50%;
@@ -224,13 +264,11 @@
     .led.on-yellow { background: #e3b341; box-shadow: 0 0 6px #e3b341; }
     .led.on-red    { background: #f85149; box-shadow: 0 0 6px #f85149; }
     .led.blink     { animation: blink-led 0.5s infinite alternate; }
-    @keyframes blink-led { from { opacity: 1; } to { opacity: 0.1; } }
+    @keyframes blink-led { from{opacity:1} to{opacity:0.1} }
 
-    /* Pisca o valor do nível no display (igual ao LCD a 0% e 25%) */
     .blink-text { animation: blink-text 0.5s infinite alternate; }
-    @keyframes blink-text { from { opacity: 1; } to { opacity: 0.05; } }
+    @keyframes blink-text { from{opacity:1} to{opacity:0.05} }
 
-    /* Badge do buzzer */
     .buzzer-badge {
       display: none;
       align-items: center;
@@ -246,26 +284,16 @@
     }
     .buzzer-badge.ativo { display: flex; }
 
-    /* ===== PANEL CHARTS ===== */
+    /* ===== PANEL ===== */
     .panel {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.25rem;
     }
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
-    .panel-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-    }
-    .panel-badge {
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .panel-title  { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .panel-badge  {
       font-size: 0.7rem;
       background: var(--info-bg);
       color: var(--accent);
@@ -274,49 +302,22 @@
       border-radius: 20px;
       font-family: var(--font-mono);
     }
-    .chart-wrap {
-      position: relative;
-      width: 100%;
-      height: 240px;
-    }
+    .chart-wrap { position: relative; width: 100%; height: 240px; }
 
-    /* ===== TIMER BARS ===== */
-    .timer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
+    /* ===== TIMERS ===== */
+    .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 500px) { .timer-grid { grid-template-columns: 1fr; } }
-    .timer-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 1rem;
-    }
+    .timer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; }
     .timer-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
     .timer-value { font-family: var(--font-mono); font-size: 1.1rem; }
-    .timer-bar-wrap {
-      margin-top: 10px;
-      height: 6px;
-      background: #2a2a2a;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .timer-bar {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 1s ease;
-    }
+    .timer-bar-wrap { margin-top: 10px; height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
+    .timer-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
 
-    /* ===== HISTORY TABLE ===== */
+    /* ===== TABLE ===== */
     .history-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .history-table th {
-      text-align: left;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      padding: 6px 10px;
+      text-align: left; font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); padding: 6px 10px;
       border-bottom: 1px solid var(--border);
     }
     .history-table td {
@@ -326,32 +327,17 @@
       font-size: 0.79rem;
     }
     .history-table tr:hover td { background: rgba(255,255,255,.03); }
-    .pill {
-      display: inline-block;
-      padding: 1px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-family: var(--font-body);
-      font-weight: 500;
-    }
+    .pill { display: inline-block; padding: 1px 8px; border-radius: 20px; font-size: 0.7rem; font-family: var(--font-body); font-weight: 500; }
     .pill-0   { background: rgba(248,81,73,.15); color: #f85149; }
     .pill-25  { background: rgba(227,179,65,.15); color: #e3b341; }
     .pill-50  { background: rgba(47,129,247,.15); color: #2f81f7; }
     .pill-75  { background: rgba(86,211,100,.15); color: #56d364; }
     .pill-100 { background: rgba(86,211,100,.25); color: #56d364; }
 
-    /* ===== RELAY BADGE ===== */
-    .relay-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 500;
-    }
+    .relay-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 500; }
     .relay-on  { background: rgba(248,81,73,.15); color: #f85149; }
     .relay-off { background: rgba(125,133,144,.15); color: #7d8590; }
 
-    /* ===== FOOTER ===== */
     footer {
       text-align: center;
       padding: 2rem;
@@ -367,7 +353,7 @@
 
 <header>
   <h1>Caixa <span>D'água</span></h1>
-  <div style="display:flex; align-items:center; gap:12px;">
+  <div style="display:flex;align-items:center;gap:12px;">
     <span>
       <span id="status-dot"></span>
       <span id="status-text" style="font-size:.82rem;">Conectando...</span>
@@ -378,25 +364,16 @@
 
 <main>
 
-  <!-- CONFIG BANNER -->
   <div id="config-banner">
-    ⚙️ <strong>Configuração necessária:</strong> Edite o bloco <code>firebaseConfig</code> no final desta página com as credenciais do seu projeto Firebase. Configure o ESP-01 para enviar dados no formato <code>NIVEL:XX</code> via Serial (baud 9600).
+    ⚙️ <strong>Configuração necessária:</strong> Edite o bloco <code>firebaseConfig</code> no final desta página com as credenciais do seu projeto Firebase.
   </div>
 
-  <!-- ESP INFO CARD -->
-  <div id="esp-info-card" style="
-    background: rgba(47,129,247,.07);
-    border: 1px solid rgba(47,129,247,.3);
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    font-size: 0.82rem;
-    line-height: 1.7;
-  ">
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:.6rem;">
+  <div id="esp-info-card" style="background:rgba(47,129,247,.07);border:1px solid rgba(47,129,247,.3);border-radius:12px;padding:1rem 1.25rem;font-size:0.82rem;line-height:1.7;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;">
       <span style="font-size:1.1rem;">📡</span>
-      <strong style="font-size:.85rem; letter-spacing:.04em; color:var(--accent);">ESP-01 — Configuração Ativa</strong>
+      <strong style="font-size:.85rem;letter-spacing:.04em;color:var(--accent);">ESP-01 — Configuração Ativa</strong>
     </div>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.5rem .75rem;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.5rem .75rem;">
       <div><span style="color:var(--muted);">WiFi SSID:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">ENGENHARIA 2.4G</code></div>
       <div><span style="color:var(--muted);">Baud rate:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">9600</code></div>
       <div><span style="color:var(--muted);">Firebase:</span> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;">projeto-caixa-dagua</code></div>
@@ -415,109 +392,104 @@
     </div>
     <div class="metric-card" id="card-bomba">
       <div class="label">Bomba / Relé</div>
-      <div class="value" style="font-size:1.2rem; padding-top:.4rem;" id="val-bomba">—</div>
+      <div class="value" style="font-size:1.2rem;padding-top:.4rem;" id="val-bomba">—</div>
       <div class="sub" id="sub-bomba"></div>
     </div>
     <div class="metric-card" id="card-enchimento">
       <div class="label">Enchimento</div>
-      <div class="value" style="font-size:1.3rem; padding-top:.3rem;" id="val-enchimento">—</div>
+      <div class="value" style="font-size:1.3rem;padding-top:.3rem;" id="val-enchimento">—</div>
       <div class="sub">Última vez de 25% → 100%</div>
     </div>
     <div class="metric-card" id="card-esvaziamento">
       <div class="label">Esvaziamento</div>
-      <div class="value" style="font-size:1.3rem; padding-top:.3rem;" id="val-esvaziamento">—</div>
+      <div class="value" style="font-size:1.3rem;padding-top:.3rem;" id="val-esvaziamento">—</div>
       <div class="sub">Última vez de 100% → 25%</div>
     </div>
   </div>
 
-  <!-- TANQUE + LEDS -->
+  <!-- TANQUE + GRÁFICO -->
   <div class="tank-row">
     <div class="tank-wrap">
       <span class="tank-title">Caixa visual</span>
-      <div class="tank-svg-wrap">
-        <svg id="tank-svg" viewBox="0 0 100 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- estrutura -->
-          <rect x="10" y="10" width="80" height="160" rx="6" fill="#1c2333" stroke="#30363d" stroke-width="2"/>
-          <!-- água -->
-          <clipPath id="tank-clip">
-            <rect x="12" y="12" width="76" height="156" rx="4"/>
-          </clipPath>
-          <rect id="water-rect" x="12" y="168" width="76" height="0" fill="#2f81f7" opacity="0.85" clip-path="url(#tank-clip)">
-            <animate id="water-anim" attributeName="y" dur=".6s" fill="freeze" />
-            <animate id="water-anim-h" attributeName="height" dur=".6s" fill="freeze" />
-          </rect>
+
+      <!-- CAIXA ANIMADA -->
+      <div class="tank-outer-wrap">
+        <div class="tank-cap"></div>
+        <div class="tank-body">
           <!-- marcações -->
-          <line x1="10" y1="49" x2="18" y2="49" stroke="#30363d" stroke-width="1"/>
-          <text x="20" y="53" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">75%</text>
-          <line x1="10" y1="88" x2="18" y2="88" stroke="#30363d" stroke-width="1"/>
-          <text x="20" y="92" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">50%</text>
-          <line x1="10" y1="127" x2="18" y2="127" stroke="#30363d" stroke-width="1"/>
-          <text x="20" y="131" fill="#7d8590" font-size="7" font-family="DM Mono,monospace">25%</text>
-          <!-- contorno -->
-          <rect x="10" y="10" width="80" height="160" rx="6" fill="none" stroke="#30363d" stroke-width="2"/>
-        </svg>
+          <div class="tank-marks">
+            <div class="tank-mark" style="bottom:75%;">75%</div>
+            <div class="tank-mark" style="bottom:50%;">50%</div>
+            <div class="tank-mark" style="bottom:25%;">25%</div>
+          </div>
+          <!-- ÁGUA -->
+          <div id="water-fill">
+            <!-- ondas -->
+            <svg class="wave-svg" viewBox="0 0 140 14" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path id="wave-path1"
+                d="M0,7 C12,2 22,12 40,7 C58,2 68,12 80,7 C92,2 102,12 120,7 C132,2 138,12 140,7 L140,14 L0,14 Z"
+                fill="#2f81f7" opacity="0.9"/>
+              <path id="wave-path2"
+                d="M0,7 C10,12 20,2 40,7 C60,12 70,2 80,7 C90,12 100,2 120,7 C136,12 139,2 140,7 L140,14 L0,14 Z"
+                fill="#2f81f7" opacity="0.55"/>
+            </svg>
+            <!-- bolhas -->
+            <div class="bubble" style="width:5px;height:5px;left:20%;animation-duration:4s;animation-delay:0s;bottom:4px;"></div>
+            <div class="bubble" style="width:3px;height:3px;left:55%;animation-duration:5.5s;animation-delay:1.2s;bottom:4px;"></div>
+            <div class="bubble" style="width:4px;height:4px;left:75%;animation-duration:3.8s;animation-delay:2.5s;bottom:4px;"></div>
+            <div class="bubble" style="width:3px;height:3px;left:38%;animation-duration:6s;animation-delay:0.7s;bottom:4px;"></div>
+          </div>
+        </div>
       </div>
+
       <div class="tank-pct-label" id="tank-pct-label">0%</div>
+
       <div class="leds">
         <div class="led-row"><div class="led" id="led100"></div><span>100% — caixa cheia</span></div>
         <div class="led-row"><div class="led" id="led75"></div><span>75%</span></div>
         <div class="led-row"><div class="led" id="led50"></div><span>50%</span></div>
         <div class="led-row"><div class="led" id="led25"></div><span>25% — boia crítica</span></div>
       </div>
-      <!-- Indicadores de hardware -->
-      <div style="display:flex; flex-direction:column; gap:6px; width:100%; margin-top:4px;">
-        <div id="rele-badge" style="
-          display:flex; align-items:center; gap:6px;
-          border-radius:20px; padding:3px 10px; font-size:.75rem;
-          font-family:var(--font-mono);
-          background:rgba(125,133,144,.1); color:var(--muted);
-          border:1px solid rgba(125,133,144,.25); transition:all .3s;
-        ">
+
+      <div style="display:flex;flex-direction:column;gap:6px;width:100%;margin-top:4px;">
+        <div id="rele-badge" style="display:flex;align-items:center;gap:6px;border-radius:20px;padding:3px 10px;font-size:.75rem;font-family:var(--font-mono);background:rgba(125,133,144,.1);color:var(--muted);border:1px solid rgba(125,133,144,.25);transition:all .3s;">
           <span id="rele-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
           <span id="rele-txt">Relé desligado</span>
         </div>
-        <div id="buzzer-badge" class="buzzer-badge">
-          🔔 Buzzer ativo
-        </div>
+        <div id="buzzer-badge" class="buzzer-badge">🔔 Buzzer ativo</div>
       </div>
     </div>
 
-    <!-- GRÁFICO HISTÓRICO -->
+    <!-- GRÁFICO -->
     <div class="panel" style="flex:1;">
       <div class="panel-header">
         <span class="panel-title">Histórico de níveis</span>
         <span class="panel-badge" id="badge-pts">0 pontos</span>
       </div>
       <div class="chart-wrap">
-        <canvas id="chartNivel" role="img" aria-label="Gráfico de linha mostrando histórico de nível da caixa d'água"></canvas>
+        <canvas id="chartNivel"></canvas>
       </div>
     </div>
   </div>
 
   <!-- TEMPORIZADORES -->
   <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">Temporizadores</span>
-    </div>
+    <div class="panel-header"><span class="panel-title">Temporizadores</span></div>
     <div class="timer-grid">
       <div class="timer-card">
         <div class="timer-label">⬆ Enchimento (25% → 100%)</div>
         <div class="timer-value" id="t-enchimento">— min</div>
-        <div class="timer-bar-wrap">
-          <div class="timer-bar" id="bar-enchimento" style="width:0%;background:#2f81f7;"></div>
-        </div>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="bar-enchimento" style="width:0%;background:#2f81f7;"></div></div>
       </div>
       <div class="timer-card">
         <div class="timer-label">⬇ Esvaziamento (100% → 25%)</div>
         <div class="timer-value" id="t-esvaziamento">— min</div>
-        <div class="timer-bar-wrap">
-          <div class="timer-bar" id="bar-esvaziamento" style="width:0%;background:#f85149;"></div>
-        </div>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="bar-esvaziamento" style="width:0%;background:#f85149;"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- TABELA DE EVENTOS -->
+  <!-- TABELA -->
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Últimos eventos</span>
@@ -527,27 +499,24 @@
       <table class="history-table">
         <thead>
           <tr>
-            <th>Data/Hora</th>
-            <th>Nível</th>
-            <th>Bomba</th>
-            <th>Evento</th>
+            <th>Data/Hora</th><th>Nível</th><th>Bomba</th><th>Evento</th>
           </tr>
         </thead>
         <tbody id="history-body">
-          <tr><td colspan="4" style="color:var(--muted); text-align:center; padding:1.5rem;">Aguardando dados do Firebase...</td></tr>
+          <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:1.5rem;">Aguardando dados do Firebase...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- GRÁFICO DE DISTRIBUIÇÃO -->
+  <!-- GRÁFICO DISTRIBUIÇÃO -->
   <div class="panel">
     <div class="panel-header">
       <span class="panel-title">Distribuição de tempo por nível</span>
       <span class="panel-badge">últimas 24h</span>
     </div>
     <div class="chart-wrap" style="height:200px;">
-      <canvas id="chartDist" role="img" aria-label="Gráfico de barras com distribuição de tempo em cada nível"></canvas>
+      <canvas id="chartDist"></canvas>
     </div>
   </div>
 
@@ -555,19 +524,11 @@
 
 <footer>
   Monitor Caixa D'água — Arduino + ESP-01 + Firebase &mdash;
-  Projeto: <code style="font-family:var(--font-mono); font-size:.75rem;">projeto-caixa-dagua</code> &mdash;
-  WiFi: <code style="font-family:var(--font-mono); font-size:.75rem;">ENGENHARIA 2.4G</code>
+  Projeto: <code style="font-family:var(--font-mono);font-size:.75rem;">projeto-caixa-dagua</code> &mdash;
+  WiFi: <code style="font-family:var(--font-mono);font-size:.75rem;">ENGENHARIA 2.4G</code>
 </footer>
 
-<!-- ====================================================
-     FIREBASE + LÓGICA PRINCIPAL
-     ==================================================== -->
 <script>
-// =====================================================
-// ⚠️ CONFIGURE AQUI COM SEUS DADOS DO FIREBASE ⚠️
-// Acesse: console.firebase.google.com → Seu projeto
-// → Configurações → Configuração do app web
-// =====================================================
 const firebaseConfig = {
   apiKey:            "AIzaSyDaHoZr619hMLmdLFA4pAPYp9JKc5bxNmU",
   authDomain:        "projeto-caixa-dagua.firebaseapp.com",
@@ -578,35 +539,24 @@ const firebaseConfig = {
   appId:             "1:194549239147:web:6e9d9c5f0a48d18a20d02e"
 };
 
-// =====================================================
-// INICIALIZAÇÃO
-// =====================================================
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-// Firebase já configurado com o projeto real — desabilita modo demo
 const isMock = false;
 
-// =====================================================
-// ESTADO
-// =====================================================
 let state = {
   nivel: null,
   bombaOn: false,
-  history: [],            // [{ts, nivel, bomba, evento}]
-  enchIni: null,          // timestamp quando chegou em 25% (bomba ligou)
-  esvIni: null,           // timestamp quando chegou em 100%
-  lastEnch: null,         // duração em min
+  history: [],
+  enchIni: null,
+  esvIni: null,
+  lastEnch: null,
   lastEsv: null,
   prevNivel: null,
-  // Buzzer — dispara 1x ao chegar em 25%, dura 10s (igual ao Arduino)
   buzzerAtivo: false,
   buzzerTimer: null
 };
 
-// =====================================================
-// CHART.JS — linha histórico
-// =====================================================
+// ===== CHART: LINHA =====
 const ctxNivel = document.getElementById('chartNivel').getContext('2d');
 const chartNivel = new Chart(ctxNivel, {
   type: 'line',
@@ -630,27 +580,14 @@ const chartNivel = new Chart(ctxNivel, {
     maintainAspectRatio: false,
     animation: { duration: 400 },
     scales: {
-      x: {
-        ticks: { color: '#7d8590', font: { family: 'DM Mono', size: 10 }, maxRotation: 45 },
-        grid: { color: 'rgba(48,54,61,.5)' }
-      },
-      y: {
-        min: 0, max: 100,
-        ticks: {
-          color: '#7d8590',
-          stepSize: 25,
-          callback: v => v + '%'
-        },
-        grid: { color: 'rgba(48,54,61,.5)' }
-      }
+      x: { ticks: { color: '#7d8590', font: { family: 'DM Mono', size: 10 }, maxRotation: 45 }, grid: { color: 'rgba(48,54,61,.5)' } },
+      y: { min: 0, max: 100, ticks: { color: '#7d8590', stepSize: 25, callback: v => v + '%' }, grid: { color: 'rgba(48,54,61,.5)' } }
     },
     plugins: { legend: { display: false } }
   }
 });
 
-// =====================================================
-// CHART.JS — barras distribuição
-// =====================================================
+// ===== CHART: BARRAS =====
 const ctxDist = document.getElementById('chartDist').getContext('2d');
 const chartDist = new Chart(ctxDist, {
   type: 'bar',
@@ -670,18 +607,13 @@ const chartDist = new Chart(ctxDist, {
     animation: { duration: 400 },
     scales: {
       x: { ticks: { color: '#7d8590' }, grid: { display: false } },
-      y: {
-        ticks: { color: '#7d8590', callback: v => v + 'min' },
-        grid: { color: 'rgba(48,54,61,.5)' }
-      }
+      y: { ticks: { color: '#7d8590', callback: v => v + 'min' }, grid: { color: 'rgba(48,54,61,.5)' } }
     },
     plugins: { legend: { display: false } }
   }
 });
 
-// =====================================================
-// FUNÇÕES DE UI
-// =====================================================
+// ===== HELPERS =====
 function fmt(ms) {
   if (!ms) return '—';
   const s = Math.round(ms / 1000);
@@ -691,50 +623,66 @@ function fmt(ms) {
   if (h > 0) return h + 'h ' + (m % 60) + 'min';
   return m + 'min';
 }
-
 function fmtDate(ts) {
-  const d = new Date(ts);
-  return d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  return new Date(ts).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 }
 
+// ===== CAIXA VISUAL ANIMADA =====
 function setTank(pct) {
-  const maxH = 156;
-  const h = (pct / 100) * maxH;
-  const y = 168 - h;
-  document.getElementById('water-rect').setAttribute('y', y);
-  document.getElementById('water-rect').setAttribute('height', h);
-  document.getElementById('tank-pct-label').textContent = pct + '%';
+  const waterColors = {
+    0:   '#f85149',
+    25:  '#e3b341',
+    50:  '#2f81f7',
+    75:  '#56d364',
+    100: '#56d364'
+  };
+  const col = waterColors[pct] !== undefined ? waterColors[pct] : '#2f81f7';
 
-  const colors = { 0:'#f85149', 25:'#e3b341', 50:'#2f81f7', 75:'#56d364', 100:'#56d364' };
-  const c = colors[pct] || '#2f81f7';
-  document.getElementById('water-rect').setAttribute('fill', c);
+  const fill = document.getElementById('water-fill');
+  fill.style.height = pct + '%';
+  fill.style.background = col;
+
+  // atualiza cor das ondas e bolhas
+  document.getElementById('wave-path1').setAttribute('fill', col);
+  document.getElementById('wave-path2').setAttribute('fill', col);
+  document.querySelectorAll('.bubble').forEach(b => {
+    b.style.background = 'rgba(255,255,255,' + (pct > 25 ? '0.18' : '0.1') + ')';
+  });
+
+  // label do percentual com cor contextual
+  const label = document.getElementById('tank-pct-label');
+  label.textContent = pct + '%';
+  label.style.color = (pct === 0 || pct === 25) ? '#f85149' : pct === 100 ? '#56d364' : '#e6edf3';
 }
 
 function setLeds(pct) {
-  const ids  = [25, 50, 75, 100];
-  const cols = { 25:'on-red', 50:'on-blue', 75:'on-yellow', 100:'on-green' };
-  ids.forEach(v => {
-    const el = document.getElementById('led' + v);
-    el.className = 'led';
-    if (pct >= v) el.classList.add(cols[v]);
-    // L25 pisca em 0% E em 25% (igual ao Arduino: LED piscando nas duas condições críticas)
-    if (v === 25 && (pct === 25 || pct === 0)) {
-      el.classList.add('on-red');
-      el.classList.add('blink');
-    }
-  });
+  const led25  = document.getElementById('led25');
+  const led50  = document.getElementById('led50');
+  const led75  = document.getElementById('led75');
+  const led100 = document.getElementById('led100');
+
+  led25.className  = 'led';
+  led50.className  = 'led';
+  led75.className  = 'led';
+  led100.className = 'led';
+
+  if (pct >= 50)   led50.classList.add('on-blue');
+  if (pct >= 75)   led75.classList.add('on-yellow');
+  if (pct === 100) led100.classList.add('on-green');
+
+  if (pct === 0 || pct === 25) {
+    led25.classList.add('on-red', 'blink');
+  }
 }
 
 function setMetricCard(id, extra) {
-  const card = document.getElementById('card-' + id);
-  card.className = 'metric-card ' + (extra || '');
+  document.getElementById('card-' + id).className = 'metric-card ' + (extra || '');
 }
 
 function updateUI() {
   const { nivel, bombaOn, lastEnch, lastEsv, history, buzzerAtivo } = state;
   if (nivel === null) return;
 
-  // nível — descrições alinhadas ao Arduino
   const nivelSubs = {
     0:   'Caixa vazia — sem leitura de boia',
     25:  'Boia crítica ativa — relé ligado, buzzer 10s',
@@ -742,26 +690,21 @@ function updateUI() {
     75:  'Nível bom',
     100: 'Caixa cheia — relé desligado'
   };
+
   const valEl = document.getElementById('val-nivel');
   valEl.textContent = nivel + '%';
-  // Pisca o valor a 0% e 25% (igual ao LCD do Arduino)
-  if (nivel === 0 || nivel === 25) {
-    valEl.classList.add('blink-text');
-  } else {
-    valEl.classList.remove('blink-text');
-  }
-  document.getElementById('sub-nivel').textContent = nivelSubs[nivel] || '';
-  // Danger em 0% e 25%, success em 100%
-  const nivelClass = (nivel === 0 || nivel === 25) ? 'danger' : nivel === 100 ? 'success' : '';
-  setMetricCard('nivel', nivelClass);
+  if (nivel === 0 || nivel === 25) valEl.classList.add('blink-text');
+  else valEl.classList.remove('blink-text');
 
-  // bomba
+  document.getElementById('sub-nivel').textContent = nivelSubs[nivel] || '';
+  setMetricCard('nivel', (nivel === 0 || nivel === 25) ? 'danger' : nivel === 100 ? 'success' : '');
+
   document.getElementById('val-bomba').innerHTML =
     '<span class="relay-badge ' + (bombaOn ? 'relay-on' : 'relay-off') + '">' +
     (bombaOn ? '⚡ Ligada' : '○ Desligada') + '</span>';
   setMetricCard('bomba', bombaOn ? 'danger' : '');
 
-  // Relé badge na caixa visual
+  // relé badge
   const releEl  = document.getElementById('rele-badge');
   const releDot = document.getElementById('rele-dot');
   const releTxt = document.getElementById('rele-txt');
@@ -781,28 +724,24 @@ function updateUI() {
     releTxt.textContent = 'Relé A0 — desligado';
   }
 
-  // Buzzer badge (10s ao atingir 25%)
   const buzzerEl = document.getElementById('buzzer-badge');
   if (buzzerAtivo) buzzerEl.classList.add('ativo');
   else             buzzerEl.classList.remove('ativo');
 
-  // enchimento / esvaziamento
   document.getElementById('val-enchimento').textContent  = fmt(lastEnch);
   document.getElementById('val-esvaziamento').textContent = fmt(lastEsv);
 
-  // tanque visual + leds
+  // caixa visual animada
   setTank(nivel);
   setLeds(nivel);
 
-  // temporizadores na barra
-  const maxEnch = 120 * 60 * 1000; // 2h referência
-  const maxEsv  = 480 * 60 * 1000; // 8h referência
-  document.getElementById('t-enchimento').textContent  = fmt(lastEnch);
-  document.getElementById('t-esvaziamento').textContent = fmt(lastEsv);
-  document.getElementById('bar-enchimento').style.width =
-    lastEnch ? Math.min(100, (lastEnch / maxEnch) * 100) + '%' : '0%';
-  document.getElementById('bar-esvaziamento').style.width =
-    lastEsv ? Math.min(100, (lastEsv / maxEsv) * 100) + '%' : '0%';
+  // timers
+  const maxEnch = 120 * 60 * 1000;
+  const maxEsv  = 480 * 60 * 1000;
+  document.getElementById('t-enchimento').textContent   = fmt(lastEnch);
+  document.getElementById('t-esvaziamento').textContent  = fmt(lastEsv);
+  document.getElementById('bar-enchimento').style.width  = lastEnch ? Math.min(100,(lastEnch/maxEnch)*100)+'%' : '0%';
+  document.getElementById('bar-esvaziamento').style.width = lastEsv ? Math.min(100,(lastEsv/maxEsv)*100)+'%' : '0%';
 
   // gráfico linha
   const slice = history.slice(-60);
@@ -811,18 +750,14 @@ function updateUI() {
   chartNivel.update('none');
   document.getElementById('badge-pts').textContent = history.length + ' pontos';
 
-  // gráfico distribuição — conta registros por nível
-  const cnt = { 0:0, 25:0, 50:0, 75:0, 100:0 };
+  // gráfico distribuição
+  const cnt = {0:0,25:0,50:0,75:0,100:0};
   history.forEach(r => { if (cnt[r.nivel] !== undefined) cnt[r.nivel]++; });
-  chartDist.data.datasets[0].data = [cnt[0], cnt[25], cnt[50], cnt[75], cnt[100]];
+  chartDist.data.datasets[0].data = [cnt[0],cnt[25],cnt[50],cnt[75],cnt[100]];
   chartDist.update('none');
 
-  // tabela
   updateTable();
-
-  // last update
-  document.getElementById('last-update').textContent =
-    new Date().toLocaleTimeString('pt-BR');
+  document.getElementById('last-update').textContent = new Date().toLocaleTimeString('pt-BR');
 }
 
 function updateTable() {
@@ -834,42 +769,28 @@ function updateTable() {
     <tr>
       <td>${new Date(r.ts).toLocaleString('pt-BR')}</td>
       <td><span class="pill pill-${r.nivel}">${r.nivel}%</span></td>
-      <td><span class="relay-badge ${r.bomba ? 'relay-on' : 'relay-off'}">${r.bomba ? '⚡ On' : '○ Off'}</span></td>
+      <td><span class="relay-badge ${r.bomba ? 'relay-on':'relay-off'}">${r.bomba ? '⚡ On':'○ Off'}</span></td>
       <td style="color:var(--muted)">${r.evento || '—'}</td>
     </tr>`).join('');
 }
 
-// =====================================================
-// PROCESSA LEITURA DE NÍVEL
-// Espelha exatamente a lógica do Arduino:
-//   - Relé liga em 25%, desliga em 100%
-//   - Buzzer dispara 1x em 25%, dura 10s
-//   - Níveis válidos: 0, 25, 50, 75, 100
-// =====================================================
 function processNivel(nivel, ts) {
   const prev = state.prevNivel;
   let evento = '';
 
-  // ---- RELÉ (igual ao Arduino) ----
-  // Liga ao chegar exatamente em 25% (bomba precisa encher)
   if (nivel === 25 && !state.bombaOn) {
     state.bombaOn = true;
     evento = 'Relé A0 ligado — bomba acionada';
   }
-  // Desliga ao chegar em 100% (caixa cheia)
   if (nivel === 100 && state.bombaOn) {
     state.bombaOn = false;
     evento = 'Relé A0 desligado — caixa cheia';
   }
 
-  // ---- BUZZER (igual ao Arduino) ----
-  // jaDisparouBuzzer: só dispara 1x por evento de 25%
-  // Reseta quando sai de 25%
   if (nivel === 25 && prev !== 25 && !state.buzzerAtivo) {
     state.buzzerAtivo = true;
-    updateUI(); // atualiza badge imediatamente
+    updateUI();
     if (state.buzzerTimer) clearTimeout(state.buzzerTimer);
-    // Dura 10s exatos (const buzzerTempo = 10000 no Arduino)
     state.buzzerTimer = setTimeout(() => {
       state.buzzerAtivo = false;
       updateUI();
@@ -880,8 +801,6 @@ function processNivel(nivel, ts) {
     if (state.buzzerTimer) { clearTimeout(state.buzzerTimer); state.buzzerTimer = null; }
   }
 
-  // ---- ENCHIMENTO (25% → 100%) ----
-  // Inicia quando sai de 25% subindo (bomba já ligou)
   if (prev === 25 && nivel > 25) {
     state.enchIni = ts;
     if (!evento) evento = 'Enchimento iniciado (bomba ligada)';
@@ -893,7 +812,6 @@ function processNivel(nivel, ts) {
     salvarTempo('enchimento', state.lastEnch, ts);
   }
 
-  // ---- ESVAZIAMENTO (100% → 25%) ----
   if (prev === 100 && nivel < 100) {
     state.esvIni = ts;
     if (!evento) evento = 'Consumo iniciado';
@@ -905,67 +823,45 @@ function processNivel(nivel, ts) {
     salvarTempo('esvaziamento', state.lastEsv, ts);
   }
 
-  // ---- 0%: caixa vazia ----
   if (nivel === 0 && prev !== 0) {
     if (!evento) evento = 'Caixa vazia — nenhuma boia ativa';
   }
 
   state.nivel = nivel;
   state.prevNivel = nivel;
-
-  // adiciona ao histórico
   state.history.push({ ts, nivel, bomba: state.bombaOn, evento });
-
   updateUI();
   return evento;
 }
 
-// =====================================================
-// FIREBASE — ESCUTA DADOS DO ESP
-// =====================================================
 function salvarTempo(tipo, durMs, ts) {
-  db.ref('caixa_dagua/tempos').push({
-    tipo,
-    duracao_ms: durMs,
-    duracao_fmt: fmt(durMs),
-    ts
-  });
+  db.ref('caixa_dagua/tempos').push({ tipo, duracao_ms: durMs, duracao_fmt: fmt(durMs), ts });
 }
 
 function iniciarFirebase() {
   const refNivel   = db.ref('caixa_dagua/nivel_atual');
   const refHistory = db.ref('caixa_dagua/historico');
 
-  // status de conexão
   db.ref('.info/connected').on('value', snap => {
     const online = snap.val();
-    const dot  = document.getElementById('status-dot');
-    const text = document.getElementById('status-text');
-    dot.className = 'online' + (online ? '' : ' offline');
-    text.textContent = online ? 'Online' : 'Offline';
+    document.getElementById('status-dot').className = online ? 'online' : 'offline';
+    document.getElementById('status-text').textContent = online ? 'Online' : 'Offline';
     document.getElementById('config-banner').classList.remove('show');
   });
 
-  // nível em tempo real
-  // O ESP-01 usa millis() (ms desde o boot, não Unix epoch).
-  // Usamos Date.now() para o timestamp real de exibição.
   refNivel.on('value', snap => {
     const data = snap.val();
     if (!data) return;
-    const nivel = parseInt(data.percentual);
-    const ts    = Date.now(); // millis() do ESP não é Unix epoch
-    processNivel(nivel, ts);
+    processNivel(parseInt(data.percentual), Date.now());
   });
 
-  // histórico (últimos 200)
   refHistory.limitToLast(200).once('value', snap => {
     const data = snap.val();
     if (!data) return;
-    // Ordena pelas chaves push do Firebase (cronológico) e usa índice relativo para ts estimado
     const entries = Object.entries(data).sort((a,b) => a[0] > b[0] ? 1 : -1);
     const now = Date.now();
     state.history = entries.map(([key, r], i) => ({
-      ts:     now - (entries.length - 1 - i) * 5000, // estimativa: 5s entre leituras
+      ts:     now - (entries.length - 1 - i) * 5000,
       nivel:  r.nivel,
       bomba:  r.bomba || false,
       evento: r.evento || '',
@@ -975,11 +871,9 @@ function iniciarFirebase() {
     updateUI();
   });
 
-  // escuta novos registros do histórico
   refHistory.limitToLast(1).on('child_added', snap => {
     const r = snap.val();
     if (!r) return;
-    // Evita duplicatas; usa Date.now() pois ESP envia millis() não epoch
     const tsReal = Date.now();
     if (state.history.length && state.history[state.history.length-1]._key === snap.key) return;
     state.history.push({ ts: tsReal, nivel: r.nivel, bomba: r.bomba || false, evento: r.evento || '', _key: snap.key });
@@ -987,125 +881,21 @@ function iniciarFirebase() {
   });
 }
 
-// =====================================================
-// MOCK (sem Firebase configurado)
-// =====================================================
 function iniciarMock() {
   document.getElementById('status-dot').className = 'online';
   document.getElementById('status-text').textContent = 'Demo (sem Firebase)';
-
-  const niveis = [25, 50, 50, 75, 75, 100, 100, 75, 50, 25];
+  const niveis = [0, 25, 50, 50, 75, 75, 100, 100, 75, 50, 25];
   let idx = 0;
   const base = Date.now() - niveis.length * 60000;
-
-  niveis.forEach((n, i) => {
-    processNivel(n, base + i * 60000);
-  });
-
+  niveis.forEach((n, i) => processNivel(n, base + i * 60000));
   setInterval(() => {
     idx = (idx + 1) % niveis.length;
     processNivel(niveis[idx], Date.now());
   }, 4000);
 }
 
-// =====================================================
-// INÍCIO
-// =====================================================
-if (isMock) {
-  iniciarMock();
-} else {
-  iniciarFirebase();
-}
+if (isMock) iniciarMock();
+else iniciarFirebase();
 </script>
-
-<!--
-=======================================================
-  CÓDIGO ESP-01 (Arduino IDE) — sketch atual
-
-  Recebe o nível via Serial do Arduino/sensor e
-  publica no Firebase via HTTPS REST API.
-
-  Bibliotecas necessárias (Library Manager):
-  - ESP8266WiFi       (inclusa no ESP8266 board package)
-  - ESP8266HTTPClient (inclusa no ESP8266 board package)
-
-  -------------------------------------------------------
-  #include <ESP8266WiFi.h>
-  #include <ESP8266HTTPClient.h>
-  #include <WiFiClientSecure.h>
-
-  const char* ssid     = "ENGENHARIA 2.4G";
-  const char* password = "ENGENHARIA2025";
-
-  // Firebase Realtime Database
-  const char* fbHost = "https://projeto-caixa-dagua-default-rtdb.firebaseio.com";
-
-  WiFiClientSecure client;
-
-  void setup() {
-    Serial.begin(9600);
-    WiFi.begin(ssid, password);
-    Serial.print("Conectando WiFi");
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println("\nWiFi conectado!");
-    client.setInsecure();   // aceita certificado sem validação
-    Serial.println("Sistema pronto.");
-    Serial.println("Digite: NIVEL:80");
-  }
-
-  void loop() {
-    if (Serial.available()) {
-      String line = Serial.readStringUntil('\n');
-      line.trim();
-      Serial.print("Recebido: ");
-      Serial.println(line);
-      if (line.startsWith("NIVEL:")) {
-        int pct = line.substring(6).toInt();
-        Serial.print("Nivel detectado: ");
-        Serial.println(pct);
-        enviarFirebase(pct);
-      }
-    }
-  }
-
-  void enviarFirebase(int pct) {
-    if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("WiFi desconectado!");
-      return;
-    }
-    HTTPClient http;
-    long ts = millis();
-
-    // ===== NIVEL ATUAL =====
-    String url1  = String(fbHost) + "/caixa_dagua/nivel_atual.json";
-    String body1 = "{\"percentual\":" + String(pct) +
-                   ",\"timestamp\":"  + String(ts) + "}";
-    Serial.println("Enviando nivel atual...");
-    http.begin(client, url1);
-    http.addHeader("Content-Type", "application/json");
-    int code1 = http.PUT(body1);
-    Serial.print("HTTP nivel atual: "); Serial.println(code1);
-    http.end();
-
-    // ===== HISTORICO =====
-    String url2  = String(fbHost) + "/caixa_dagua/historico.json";
-    String body2 = "{\"nivel\":"  + String(pct) +
-                   ",\"ts\":"     + String(ts)  +
-                   ",\"bomba\":"  + String(pct <= 25 ? "true" : "false") + "}";
-    Serial.println("Salvando historico...");
-    http.begin(client, url2);
-    http.addHeader("Content-Type", "application/json");
-    int code2 = http.POST(body2);
-    Serial.print("HTTP historico: "); Serial.println(code2);
-    http.end();
-
-    Serial.println("Dados enviados!");
-  }
-=======================================================
--->
-
 </body>
 </html>
